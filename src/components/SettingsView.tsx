@@ -26,8 +26,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   setTheme,
 }) => {
   const t = getTranslation(language);
-  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+
+  const openPrivacyPolicy = () => {
+    window.location.hash = 'privacy';
+    window.location.reload();
+  };
 
   return (
     <div id="settings-view" className="space-y-6 max-w-xl mx-auto pb-8">
@@ -145,7 +149,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           {/* Privacy Policy */}
           <button
             id="privacy-policy-btn"
-            onClick={() => setShowPrivacyModal(true)}
+            onClick={openPrivacyPolicy}
             className="w-full p-3.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-xs sm:text-sm text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-800 transition-colors"
           >
             <div className="flex items-center gap-2.5">
@@ -182,48 +186,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           Designed for everyday productivity in Nepal.
         </div>
       </div>
-
-      {/* Privacy Policy Modal */}
-      {showPrivacyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                <span>{t.privacyPolicy}</span>
-              </h3>
-              <button
-                onClick={() => setShowPrivacyModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="text-xs text-slate-600 dark:text-slate-300 space-y-2.5 leading-relaxed">
-              <p>
-                <strong>MeroTools (Nepal Tools)</strong> prioritizes your privacy. The application is built as an offline-first utility that processes calculations (Date Conversion, Age, Date Difference, VAT, EMI) entirely on your local device.
-              </p>
-              <p>
-                • <strong>No Personal Accounts or Credentials:</strong> You do not need to register, create accounts, or provide sensitive personal information to use any calculator.
-              </p>
-              <p>
-                • <strong>Local Data Storage:</strong> Cached exchange rates and user interface settings (such as language and color theme) are stored only in your browser/device local storage.
-              </p>
-              <p>
-                • <strong>No Unnecessary Permissions:</strong> MeroTools does not request camera, microphone, contacts, location, or background telemetry.
-              </p>
-            </div>
-
-            <button
-              onClick={() => setShowPrivacyModal(false)}
-              className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-md"
-            >
-              {language === 'ne' ? 'बुझें (Close)' : 'Close'}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Terms & Disclaimers Modal */}
       {showTermsModal && (

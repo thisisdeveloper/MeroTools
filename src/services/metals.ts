@@ -1,44 +1,101 @@
-import { GoldSilverData } from '../types';
+import { GoldSilverData, MetalRateItem } from '../types';
 
 const STORAGE_KEY = 'merotools_metals_cache_v1';
+// Proxies FENEGOSIDA's dashboard feed server-side (the FENEGOSIDA API itself
+// only allows CORS from fenegosida.org, so it can't be called directly from
+// the browser/WebView).
+const API_URL = 'https://kumarsunil.com.np/api/helperapi/gold-silver/today/';
+
+export const DATA_SOURCE_NAME = 'FENEGOSIDA';
+export const DATA_SOURCE_FULL_NAME =
+  "Federation of Nepal Gold and Silver Dealers' Associations (FENEGOSIDA)";
 
 // Standard Nepal Gold & Silver Benchmark Rates
 // 1 Tola = 11.6638 grams (standard 11.66g in Nepal bullion market)
 export const TOLA_IN_GRAMS = 11.6638;
 
-export const DEFAULT_METALS_DATA: GoldSilverData = {
-  lastUpdated: 'Today, 10:30 AM',
-  isLive: true,
-  rates: {
-    fineGold: {
-      name: 'Fine Gold (24K)',
-      nameNe: 'छापावाल सुन (२४ क्यारेट)',
-      tolaPrice: 168500,
-      tenGramPrice: 144460,
-      gramPrice: 14446,
-      change: 300,
-      purity: '99.99%',
-    },
-    tejabiGold: {
-      name: 'Tejabi Gold (22K)',
-      nameNe: 'तेजाबी सुन (२२ क्यारेट)',
-      tolaPrice: 167800,
-      tenGramPrice: 143860,
-      gramPrice: 14386,
-      change: 300,
-      purity: '91.60%',
-    },
-    silver: {
-      name: 'Silver',
-      nameNe: 'चाँदी',
-      tolaPrice: 2015,
-      tenGramPrice: 1728,
-      gramPrice: 172.8,
-      change: -10,
-      purity: '99.90%',
-    },
-  },
-};
+// FENEGOSIDA's public feed only publishes Fine Gold (24K, "छापावाल सुन") and
+// Silver ("असली चाँदी") rates — there is no separate Tejabi (22K) entry. We
+// derive Tejabi from the Fine Gold rate using the purity ratio already shown
+// in the UI, rather than fabricate an independent figure.
+const FINE_GOLD_PURITY_PCT = 99.99;
+const TEJABI_PURITY_PCT = 91.6;
+
+interface FenegosidaRate {
+  rateType: string;
+  todayBaseRatePerGram: number;
+  yestardayBaseRatePerGram: number;
+}
+
+interface MetalsProxyResponse {
+  available: boolean;
+  stale: boolean;
+  fetched_at: string;
+  source: string;
+  data: FenegosidaRate[];
+}
+
+function findRate(rows: FenegosidaRate[], metalKeyword: string, unitKeyword: string) {
+  return rows.find(
+    (r) => r.rateType.includes(metalKeyword) && r.rateType.includes(unitKeyword)
+  );
+}
+
+function buildMetalsData(rows: FenegosidaRate[], fetchedAtIso?: string): GoldSilverData | null {
+  const silverTola = findRate(rows, 'चाँदी', 'तोला');
+  const silverTenGram = findRate(rows, 'चाँदी', 'ग्राम');
+  const goldTola = findRate(rows, 'सुन', 'तोला');
+  const goldTenGram = findRate(rows, 'सुन', 'ग्राम');
+
+  if (!silverTola || !silverTenGram || !goldTola || !goldTenGram) {
+    return null;
+  }
+
+  const tejabiRatio = TEJABI_PURITY_PCT / FINE_GOLD_PURITY_PCT;
+  const tejabiTolaPrice = Math.round(goldTola.todayBaseRatePerGram * tejabiRatio);
+  const tejabiTenGramPrice = Math.round(goldTenGram.todayBaseRatePerGram * tejabiRatio);
+  const tejabiYesterdayTolaPrice = goldTola.yestardayBaseRatePerGram * tejabiRatio;
+
+  const fineGold: MetalRateItem = {
+    name: 'Fine Gold (24K)',
+    nameNe: 'छापावाल सुन (२४ क्यारेट)',
+    tolaPrice: goldTola.todayBaseRatePerGram,
+    tenGramPrice: goldTenGram.todayBaseRatePerGram,
+    gramPrice: Number((goldTenGram.todayBaseRatePerGram / 10).toFixed(2)),
+    change: Math.round(goldTola.todayBaseRatePerGram - goldTola.yestardayBaseRatePerGram),
+    purity: `${FINE_GOLD_PURITY_PCT}%`,
+  };
+
+  const tejabiGold: MetalRateItem = {
+    name: 'Tejabi Gold (22K)',
+    nameNe: 'तेजाबी सुन (२२ क्यारेट)',
+    tolaPrice: tejabiTolaPrice,
+    tenGramPrice: tejabiTenGramPrice,
+    gramPrice: Number((tejabiTenGramPrice / 10).toFixed(2)),
+    change: Math.round(tejabiTolaPrice - tejabiYesterdayTolaPrice),
+    purity: `${TEJABI_PURITY_PCT}%`,
+  };
+
+  const silver: MetalRateItem = {
+    name: 'Silver',
+    nameNe: 'चाँदी',
+    tolaPrice: silverTola.todayBaseRatePerGram,
+    tenGramPrice: silverTenGram.todayBaseRatePerGram,
+    gramPrice: Number((silverTenGram.todayBaseRatePerGram / 10).toFixed(2)),
+    change: Math.round(silverTola.todayBaseRatePerGram - silverTola.yestardayBaseRatePerGram),
+    purity: '99.90%',
+  };
+
+  const fetchedAt = fetchedAtIso ? new Date(fetchedAtIso) : new Date();
+  const timeSource = isNaN(fetchedAt.getTime()) ? new Date() : fetchedAt;
+  const lastUpdated = `Today, ${timeSource.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+  return {
+    lastUpdated,
+    isLive: true,
+    rates: { fineGold, tejabiGold, silver },
+  };
+}
 
 export type MetalUnit = 'tola' | 'gram' | '10gram' | 'anna' | 'ratti' | 'lal' | 'pao' | 'dharni';
 
@@ -60,17 +117,16 @@ export const METAL_UNITS: UnitDefinition[] = [
   { id: 'dharni', nameEn: 'Dharni (धार्नी - 200 Tola)', nameNe: 'धार्नी', inTolas: 200 },
 ];
 
-export function getCachedMetalsData(): GoldSilverData {
+// Returns the last cached rate, or null if nothing has ever been fetched
+// successfully on this device.
+export function getCachedMetalsData(): GoldSilverData | null {
   try {
     const cached = localStorage.getItem(STORAGE_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      return { ...DEFAULT_METALS_DATA, ...parsed };
-    }
+    if (cached) return JSON.parse(cached);
   } catch {
-    // localStorage error fallback
+    // corrupt cache — treat as absent
   }
-  return DEFAULT_METALS_DATA;
+  return null;
 }
 
 export function saveCachedMetalsData(data: GoldSilverData): void {
@@ -81,22 +137,29 @@ export function saveCachedMetalsData(data: GoldSilverData): void {
   }
 }
 
-export async function fetchLiveMetalsData(): Promise<GoldSilverData> {
-  // In production / PWA, try checking live source with fallback to saved cache
+export interface MetalsFetchResult {
+  // null only when there is no live data AND no cached fallback available.
+  data: GoldSilverData | null;
+  isLive: boolean;
+}
+
+export async function fetchLiveMetalsData(): Promise<MetalsFetchResult> {
   try {
-    // Simulated resilient fetch or proxy if available
-    const cached = getCachedMetalsData();
-    const now = new Date();
-    const timeStr = `Today, ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    const updated: GoldSilverData = {
-      ...cached,
-      lastUpdated: timeStr,
-      isLive: true,
-    };
-    saveCachedMetalsData(updated);
-    return updated;
+    const res = await fetch(API_URL, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error(`Rate API returned ${res.status}`);
+    const payload: MetalsProxyResponse = await res.json();
+    if (!payload.available || !Array.isArray(payload.data)) {
+      throw new Error('Rate API reported no data available');
+    }
+    const data = buildMetalsData(payload.data, payload.fetched_at);
+    if (!data) throw new Error('Unexpected rate API response shape');
+    saveCachedMetalsData(data);
+    // `stale` means the proxy itself is serving its own last-known-good
+    // rates (its FENEGOSIDA fetch failed), not a fresh pull — surface that
+    // as non-live even though we did get a successful response.
+    return { data, isLive: !payload.stale };
   } catch {
-    return getCachedMetalsData();
+    return { data: getCachedMetalsData(), isLive: false };
   }
 }
 

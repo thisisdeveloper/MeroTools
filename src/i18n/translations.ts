@@ -152,7 +152,10 @@ export const TRANSLATIONS = {
     lastUpdated: 'Last Updated',
     liveData: 'Live Updated',
     cachedData: 'Cached Data',
-    
+    ratesUnavailable: 'Rates unavailable',
+    ratesUnavailableDesc: "Couldn't reach the live rate source and no saved rate was found. Please check your connection and try again.",
+    dataSource: 'Source',
+
     // Settings & About
     appearance: 'Appearance',
     themeSystem: 'System Default',
@@ -323,6 +326,9 @@ export const TRANSLATIONS = {
     lastUpdated: 'पछिल्लो अद्यावधिक',
     liveData: 'ताजा दर',
     cachedData: 'सुरक्षित दर',
+    ratesUnavailable: 'दर उपलब्ध छैन',
+    ratesUnavailableDesc: 'लाइभ दरको स्रोतसम्म पुग्न सकिएन र सुरक्षित दर पनि फेला परेन। कृपया आफ्नो इन्टरनेट जडान जाँच गरी पुनः प्रयास गर्नुहोस्।',
+    dataSource: 'स्रोत',
     
     // Settings & About
     appearance: 'रङ्ग तथा रूप (Appearance)',

@@ -299,26 +299,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
 
             {/* Gold Rate Indicator Banner */}
-            <div
-              onClick={() => onSelectTool('gold-silver')}
-              className="mt-4 p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 cursor-pointer hover:bg-amber-100/70 transition-colors flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center text-lg">
-                  💰
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                    {language === 'ne' ? 'छापावाल सुन' : 'Fine Gold (24K)'}
+            {metals && (
+              <div
+                onClick={() => onSelectTool('gold-silver')}
+                className="mt-4 p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 cursor-pointer hover:bg-amber-100/70 transition-colors flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center text-lg">
+                    💰
                   </div>
-                  <div className="text-sm font-extrabold text-amber-700 dark:text-amber-400">
-                    {formatNepaliCurrency(metals.rates.fineGold.tolaPrice)}
-                    <span className="text-[10px] text-slate-400 font-normal ml-1">/ तोल</span>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                      {language === 'ne' ? 'छापावाल सुन' : 'Fine Gold (24K)'}
+                    </div>
+                    <div className="text-sm font-extrabold text-amber-700 dark:text-amber-400">
+                      {formatNepaliCurrency(metals.rates.fineGold.tolaPrice)}
+                      <span className="text-[10px] text-slate-400 font-normal ml-1">/ तोल</span>
+                    </div>
                   </div>
                 </div>
+                <ArrowRight className="w-4 h-4 text-amber-600" />
               </div>
-              <ArrowRight className="w-4 h-4 text-amber-600" />
-            </div>
+            )}
           </div>
 
           {/* Sleek CTA Card for Quick Converter */}

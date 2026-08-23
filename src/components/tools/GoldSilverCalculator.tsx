@@ -13,6 +13,7 @@ import {
   calculateMetalPrice,
   METAL_UNITS,
   MetalUnit,
+  DATA_SOURCE_FULL_NAME,
 } from '../../services/metals';
 import { formatNepaliCurrency } from '../../services/forex';
 import { toNepaliDigits } from '../../calendar/bsCalendar';
@@ -28,7 +29,8 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
 }) => {
   const t = getTranslation(language);
 
-  const [data, setData] = useState<GoldSilverData>(getCachedMetalsData());
+  const [data, setData] = useState<GoldSilverData | null>(getCachedMetalsData());
+  const [isLive, setIsLive] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   // Calculator State
@@ -38,8 +40,9 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
 
   const handleRefresh = async () => {
     setLoading(true);
-    const refreshed = await fetchLiveMetalsData();
-    setData(refreshed);
+    const { data: refreshed, isLive: live } = await fetchLiveMetalsData();
+    if (refreshed) setData(refreshed);
+    setIsLive(live);
     setLoading(false);
   };
 
@@ -48,17 +51,51 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
   }, []);
 
   const weight = parseFloat(weightStr) || 0;
-  const currentRatePerTola = data.rates[selectedMetal].tolaPrice;
+  const currentRatePerTola = data?.rates[selectedMetal].tolaPrice ?? 0;
   const calculated = calculateMetalPrice(currentRatePerTola, weight, unit);
+
+  if (!data) {
+    return (
+      <div id="gold-silver-tool" className="space-y-6">
+        <div className="p-8 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center space-y-3">
+          <AlertCircle className="w-8 h-8 mx-auto text-slate-400" />
+          <div className="font-bold text-slate-800 dark:text-slate-100">
+            {t.ratesUnavailable}
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            {t.ratesUnavailableDesc}
+          </p>
+          <button
+            id="metals-refresh-btn"
+            onClick={handleRefresh}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:opacity-90 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>{language === 'ne' ? 'ताजा गर्नुहोस्' : 'Refresh'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="gold-silver-tool" className="space-y-6">
       {/* Header Info Banner & Disclaimer */}
       <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 text-xs sm:text-sm">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-amber-900 dark:text-amber-200">
               {t.indicativeRate}
+            </span>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                isLive
+                  ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }`}
+            >
+              {isLive ? t.liveData : t.cachedData}
             </span>
             <span className="text-slate-400">•</span>
             <span className="text-slate-600 dark:text-slate-300 text-xs">
@@ -80,6 +117,10 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
         <div className="flex items-start gap-1.5 text-xs text-amber-800 dark:text-amber-300/90">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{t.goldDisclaimer}</span>
+        </div>
+
+        <div className="mt-1.5 text-[11px] text-amber-700/80 dark:text-amber-400/70">
+          {t.dataSource}: {DATA_SOURCE_FULL_NAME}
         </div>
       </div>
 

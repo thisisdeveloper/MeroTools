@@ -186,10 +186,14 @@ export function saveCachedForexData(data: ForexData): void {
 
 export async function fetchLiveForexData(): Promise<ForexData> {
   try {
-    // Fetch from NRB official API if accessible, otherwise resilient fallback
-    const res = await fetch('https://www.nrb.org.np/api/forex/v1/rates?page=1&per_page=1', {
-      headers: { Accept: 'application/json' },
-    });
+    // NRB's API requires an explicit from/to date range (Y-m-d); omitting
+    // it returns a 400 with no rates. Requesting just today's date returns
+    // the latest published rates.
+    const today = new Date().toISOString().slice(0, 10);
+    const res = await fetch(
+      `https://www.nrb.org.np/api/forex/v1/rates?page=1&per_page=1&from=${today}&to=${today}`,
+      { headers: { Accept: 'application/json' } }
+    );
     if (res.ok) {
       const json = await res.json();
       if (json?.data?.payload?.[0]?.rates) {
