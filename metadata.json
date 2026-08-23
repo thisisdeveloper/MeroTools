@@ -1,0 +1,6 @@
+{
+  "name": "MeroTools - Nepal Tools",
+  "description": "Comprehensive everyday calculators and tools for Nepal: Nepali Calendar (पात्रो), Public Holidays, BS ↔ AD Date Converter, Age, Salary & Income Tax, GPA/Grade, Electricity Bill (NEA), Vehicle Tax & Renewal, Gold & Silver rates, Forex converter, Land & Unit Converter (Ropani, Bigha, Tola, Dharni, Mana, Pathi), VAT & Loan EMI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

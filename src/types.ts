@@ -1,0 +1,201 @@
+export type ToolId =
+  | 'date-converter'
+  | 'age-calculator'
+  | 'date-difference'
+  | 'nepali-calendar'
+  | 'public-holidays'
+  | 'gold-silver'
+  | 'forex'
+  | 'salary-tax'
+  | 'gpa-calculator'
+  | 'electricity-bill'
+  | 'vehicle-tax'
+  | 'land-converter'
+  | 'unit-converter'
+  | 'vat-calculator'
+  | 'emi-calculator'
+  | 'compound-interest';
+
+export type TabId = 'home' | 'tools' | 'settings';
+
+export interface BSDate {
+  year: number;
+  month: number; // 1 to 12
+  day: number; // 1 to 32
+}
+
+export interface ADDate {
+  year: number;
+  month: number; // 1 to 12
+  day: number; // 1 to 31
+}
+
+export interface DateConversionResult {
+  bs: BSDate;
+  ad: ADDate;
+  dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
+  dayNameEn: string;
+  dayNameNe: string;
+  bsMonthNameEn: string;
+  bsMonthNameNe: string;
+  adMonthNameEn: string;
+  adMonthNameNe: string;
+  formattedBsEn: string;
+  formattedBsNe: string;
+  formattedAdEn: string;
+  formattedAdNe: string;
+}
+
+export interface AgeResult {
+  years: number;
+  months: number;
+  days: number;
+  totalDays: number;
+  totalWeeks: number;
+  totalHours: number;
+  dayBornEn: string;
+  dayBornNe: string;
+  nextBirthdayInMonths: number;
+  nextBirthdayInDays: number;
+  nextBirthdayDayEn: string;
+  nextBirthdayDayNe: string;
+  isTodayBirthday: boolean;
+}
+
+export interface DateDiffResult {
+  years: number;
+  months: number;
+  days: number;
+  totalDays: number;
+  totalWeeks: number;
+  remainingDays: number;
+  totalHours: number;
+}
+
+export interface VatResult {
+  amount: number;
+  rate: number;
+  isAddingVat: boolean;
+  taxableAmount: number;
+  vatAmount: number;
+  totalAmount: number;
+}
+
+export interface EmiYearlyBreakdown {
+  year: number;
+  principalPaid: number;
+  interestPaid: number;
+  totalPayment: number;
+  remainingBalance: number;
+}
+
+export interface EmiResult {
+  monthlyEmi: number;
+  principalAmount: number;
+  interestRate: number;
+  tenureMonths: number;
+  totalInterest: number;
+  totalPayment: number;
+  yearlyBreakdown: EmiYearlyBreakdown[];
+}
+
+export interface LandRopaniSystem {
+  ropani: number;
+  aana: number;
+  paisa: number;
+  daam: number;
+  formatted: string;
+  formattedNe: string;
+}
+
+export interface LandBighaSystem {
+  bigha: number;
+  kattha: number;
+  dhur: number;
+  kanwa: number;
+  formatted: string;
+  formattedNe: string;
+}
+
+export interface LandConversionResult {
+  sqFeet: number;
+  sqMeters: number;
+  sqYards: number;
+  acres: number;
+  hectares: number;
+  sqHaat: number;
+  ropaniSystem: LandRopaniSystem;
+  bighaSystem: LandBighaSystem;
+}
+
+export type CompoundingFrequency = 'annual' | 'semi-annual' | 'quarterly' | 'monthly' | 'daily';
+
+export interface CompoundInterestYearlySchedule {
+  year: number;
+  openingBalance: number;
+  annualContribution: number;
+  interestEarned: number;
+  closingBalance: number;
+  totalInvested: number;
+}
+
+export interface CompoundInterestResult {
+  principalAmount: number;
+  annualRate: number;
+  years: number;
+  months: number;
+  frequency: CompoundingFrequency;
+  regularDeposit: number;
+  regularDepositFrequency: 'monthly' | 'yearly';
+  totalDeposit: number;
+  totalInterest: number;
+  maturityAmount: number;
+  simpleInterestComparison: number;
+  compoundInterestAdvantage: number;
+  yearlySchedule: CompoundInterestYearlySchedule[];
+}
+
+export interface MetalRateItem {
+  name: string;
+  nameNe: string;
+  tolaPrice: number;
+  tenGramPrice: number;
+  gramPrice: number;
+  change: number; // e.g. +500, -200
+  purity: string;
+}
+
+export interface GoldSilverData {
+  lastUpdated: string;
+  isLive: boolean;
+  rates: {
+    fineGold: MetalRateItem;
+    tejabiGold: MetalRateItem;
+    silver: MetalRateItem;
+  };
+}
+
+export interface ForexCurrency {
+  iso3: string;
+  name: string;
+  nameNe: string;
+  unit: number;
+  buy: number;
+  sell: number;
+  flag: string;
+}
+
+export interface ForexData {
+  date: string;
+  lastUpdated: string;
+  isLive: boolean;
+  rates: ForexCurrency[];
+}
+
+export type Language = 'en' | 'ne';
+export type ThemeMode = 'system' | 'light' | 'dark';
+
+export interface AppSettings {
+  language: Language;
+  theme: ThemeMode;
+}
