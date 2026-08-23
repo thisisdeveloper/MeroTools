@@ -142,7 +142,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-6 pb-28">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))]">
         {/* If a tool is active, display the tool wrapper */}
         {activeTool ? (
           <div className="space-y-4 max-w-3xl mx-auto">
