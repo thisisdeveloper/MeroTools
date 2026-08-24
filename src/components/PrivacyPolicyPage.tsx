@@ -4,7 +4,7 @@ import { NepalFlagWave } from './NepalFlagWave';
 import { Language } from '../types';
 
 const EFFECTIVE_DATE = 'August 24, 2026';
-const CONTACT_EMAIL = 'ysunilkumar2020@gmail.com';
+const CONTACT_EMAIL = 'ysunilkumar2030@gmail.com';
 
 export const PrivacyPolicyPage: React.FC = () => {
   const [language, setLanguage] = useState<Language>(() => {
