@@ -29,7 +29,7 @@ export const ElectricityBillCalculator: React.FC<ElectricityBillCalculatorProps>
   }, [unitsConsumed, capacity, paymentTiming]);
 
   const handleCopy = () => {
-    const text = `[MeroTools NEA Electricity Bill]
+    const text = `[Mero Tools NEA Electricity Bill]
 Units Consumed: ${billResult.unitsConsumed} kWh
 Meter Capacity: ${billResult.capacity}
 Minimum Demand Charge: NPR ${billResult.minimumCharge}

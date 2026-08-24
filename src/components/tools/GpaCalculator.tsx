@@ -72,7 +72,7 @@ export const GpaCalculator: React.FC<GpaCalculatorProps> = ({ language }) => {
   };
 
   const handleCopy = () => {
-    const text = `[MeroTools GPA Calculation Result]
+    const text = `[Mero Tools GPA Calculation Result]
 Overall GPA: ${gpaResult.finalGpa.toFixed(2)} (${gpaResult.overallLetter})
 Total Credit Hours: ${gpaResult.totalCreditHours}
 Total Grade Points: ${gpaResult.totalGradePoints}

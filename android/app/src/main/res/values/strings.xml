@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">MeroTools</string>
-    <string name="title_activity_main">MeroTools</string>
+    <string name="app_name">Mero Tools</string>
+    <string name="title_activity_main">Mero Tools</string>
     <string name="package_name">np.com.kumarusnil.merotools</string>
     <string name="custom_url_scheme">np.com.kumarusnil.merotools</string>
 </resources>

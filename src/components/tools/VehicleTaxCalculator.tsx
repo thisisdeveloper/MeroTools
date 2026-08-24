@@ -42,7 +42,7 @@ export const VehicleTaxCalculator: React.FC<VehicleTaxCalculatorProps> = ({ lang
   }, [category, engineCapacityId, overdueYears, includeInsurance, includePollution]);
 
   const handleCopy = () => {
-    const text = `[MeroTools Nepal Vehicle Tax Summary]
+    const text = `[Mero Tools Nepal Vehicle Tax Summary]
 Category: ${category}
 Engine Capacity: ${taxResult.selectedOptionLabelEn}
 Annual Road Tax: NPR ${taxResult.annualTax.toLocaleString()}

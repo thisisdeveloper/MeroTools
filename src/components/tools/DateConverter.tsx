@@ -109,13 +109,13 @@ export const DateConverter: React.FC<DateConverterProps> = ({ language }) => {
   const handleShare = async () => {
     const text =
       language === 'ne'
-        ? `नेपाली मिति: ${result.formattedBsNe} (${result.dayNameNe}) = अंग्रेजी मिति: ${result.formattedAdNe} - via MeroTools`
-        : `Nepali Date: ${result.formattedBsEn} (${result.dayNameEn}) = Gregorian: ${result.formattedAdEn} - via MeroTools`;
+        ? `नेपाली मिति: ${result.formattedBsNe} (${result.dayNameNe}) = अंग्रेजी मिति: ${result.formattedAdNe} - via Mero Tools`
+        : `Nepali Date: ${result.formattedBsEn} (${result.dayNameEn}) = Gregorian: ${result.formattedAdEn} - via Mero Tools`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Nepali Date Converter - MeroTools',
+          title: 'Nepali Date Converter - Mero Tools',
           text,
         });
       } catch {

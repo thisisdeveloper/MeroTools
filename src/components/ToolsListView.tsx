@@ -203,6 +203,29 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
     { id: 'units', labelEn: 'Land & Units', labelNe: 'जग्गा तथा इकाइ' },
   ];
 
+  const comingSoonFeatures: {
+    id: string;
+    title: string;
+    desc: string;
+    icon: string;
+    iconBg: string;
+  }[] = [
+    {
+      id: 'location-reminders',
+      title: t.locationRemindersTitle,
+      desc: t.locationRemindersDesc,
+      icon: '📍',
+      iconBg: 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400',
+    },
+    {
+      id: 'smart-task-reminders',
+      title: t.smartTaskRemindersTitle,
+      desc: t.smartTaskRemindersDesc,
+      icon: '⏰',
+      iconBg: 'bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400',
+    },
+  ];
+
   const filteredTools = useMemo(() => {
     return tools.filter((tool) => {
       if (selectedCategory !== 'all' && tool.category !== selectedCategory) {
@@ -320,6 +343,48 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
             <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
           </button>
         ))}
+      </div>
+
+      {/* Coming Soon Section */}
+      <div id="coming-soon-section" className="space-y-4 pt-4">
+        <div className="px-1">
+          <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">
+            {t.comingSoon}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            {t.comingSoonSectionDesc}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {comingSoonFeatures.map((feature) => (
+            <div
+              key={feature.id}
+              id={`coming-soon-${feature.id}`}
+              className="w-full p-4 rounded-3xl bg-slate-50/70 dark:bg-slate-900/40 border border-dashed border-slate-300 dark:border-slate-700 text-left flex items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className={`w-12 h-12 rounded-2xl ${feature.iconBg} text-2xl flex items-center justify-center shrink-0`}
+                >
+                  {feature.icon}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-extrabold text-sm sm:text-base text-slate-600 dark:text-slate-300 truncate leading-snug">
+                    {feature.title}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                    {feature.desc}
+                  </p>
+                </div>
+              </div>
+
+              <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0 whitespace-nowrap">
+                {t.comingSoon}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -36,7 +36,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               <NepalFlagWave className="w-7 h-7" />
             </div>
             <span className="font-extrabold text-slate-800 dark:text-white truncate">
-              {isNe ? 'मेरो टूल्स' : 'MeroTools'}
+              {isNe ? 'मेरो टूल्स' : 'Mero Tools'}
             </span>
           </a>
 
@@ -68,7 +68,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <div className="space-y-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             <Section title="सारांश">
               <p>
-                <strong>मेरो टूल्स (MeroTools)</strong> नेपालका लागि दैनिक क्यालकुलेटर तथा सूचना टूल्सको सङ्ग्रह हो। यो एप कुनै पनि प्रयोगकर्ता खाता, लगइन, वा व्यक्तिगत परिचय खुल्ने जानकारी बिना नै पूर्ण रूपमा प्रयोग गर्न मिल्छ। धेरैजसो गणनाहरू तपाईंको यन्त्रमै (अफलाइन) हुन्छन्।
+                <strong>मेरो टूल्स (Mero Tools)</strong> नेपालका लागि दैनिक क्यालकुलेटर तथा सूचना टूल्सको सङ्ग्रह हो। यो एप कुनै पनि प्रयोगकर्ता खाता, लगइन, वा व्यक्तिगत परिचय खुल्ने जानकारी बिना नै पूर्ण रूपमा प्रयोग गर्न मिल्छ। धेरैजसो गणनाहरू तपाईंको यन्त्रमै (अफलाइन) हुन्छन्।
               </p>
             </Section>
 
@@ -118,7 +118,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <div className="space-y-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             <Section title="Overview">
               <p>
-                <strong>MeroTools</strong> is a collection of everyday calculators and information tools for Nepal. The app works fully without any account, login, or personal identification. Most calculations run entirely on your own device.
+                <strong>Mero Tools</strong> is a collection of everyday calculators and information tools for Nepal. The app works fully without any account, login, or personal identification. Most calculations run entirely on your own device.
               </p>
             </Section>
 

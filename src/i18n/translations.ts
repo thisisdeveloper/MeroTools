@@ -2,7 +2,7 @@ import { Language } from '../types';
 
 export const TRANSLATIONS = {
   en: {
-    appName: 'MeroTools',
+    appName: 'Mero Tools',
     appSubtitle: 'Everyday calculators and information tools made for Nepal',
     tagline: 'Simple tools for everyday life in Nepal',
     home: 'Home',
@@ -169,11 +169,19 @@ export const TRANSLATIONS = {
     nrbSource: 'Forex rates referenced from Nepal Rastra Bank (NRB).',
     bullionSource: 'Gold & Silver rates referenced from FENEGOSIDA (Federation of Nepal Gold and Silver Dealers’ Association).',
     privacyPolicy: 'Privacy Policy',
-    privacyDesc: 'MeroTools is an offline-friendly utility. Calculations run locally on your device without storing your personal financial data.',
+    privacyDesc: 'Mero Tools is an offline-friendly utility. Calculations run locally on your device without storing your personal financial data.',
     terms: 'Terms of Use',
     version: 'Version',
     offlineReady: 'Offline-Ready Utilities',
     quickSummary: 'Quick Market Glance',
+
+    // Coming Soon features
+    comingSoon: 'Coming Soon',
+    comingSoonSectionDesc: 'Productivity features we’re building next',
+    locationRemindersTitle: 'Location Reminders',
+    locationRemindersDesc: 'Get reminded about tasks when you arrive at a specific location.',
+    smartTaskRemindersTitle: 'Smart Task Reminders',
+    smartTaskRemindersDesc: 'Create reminders for tasks and important things.',
   },
   ne: {
     appName: 'मेरो टूल्स',
@@ -348,6 +356,14 @@ export const TRANSLATIONS = {
     version: 'संस्करण',
     offlineReady: 'अफलाइन उपलब्ध टूल्स',
     quickSummary: 'बजारको छोटो झलक',
+
+    // Coming Soon features
+    comingSoon: 'चाँडै आउँदैछ',
+    comingSoonSectionDesc: 'हामी अब निर्माण गर्दै गरेका उत्पादकत्व सुविधाहरू',
+    locationRemindersTitle: 'स्थान रिमाइन्डर',
+    locationRemindersDesc: 'तपाईं कुनै विशेष स्थानमा पुग्दा त्यहाँका कार्यहरूको सम्झना गराइनेछ।',
+    smartTaskRemindersTitle: 'स्मार्ट कार्य रिमाइन्डर',
+    smartTaskRemindersDesc: 'कार्य र महत्त्वपूर्ण कुराहरूको लागि रिमाइन्डर बनाउनुहोस्।',
   },
 };
 

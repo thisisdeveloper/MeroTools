@@ -52,7 +52,7 @@ export const SalaryTaxCalculator: React.FC<SalaryTaxCalculatorProps> = ({ langua
   ]);
 
   const handleCopy = () => {
-    const summaryText = `[MeroTools Salary & Tax Summary]
+    const summaryText = `[Mero Tools Salary & Tax Summary]
 Status: ${status === 'married' ? 'Married (दम्पती)' : 'Single (व्यक्तिगत)'}
 Monthly Gross Salary: NPR ${taxResult.grossMonthlyIncome.toLocaleString()}
 Annual Gross Income: NPR ${taxResult.grossAnnualIncome.toLocaleString()}

@@ -177,7 +177,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* App Version Info Card */}
       <div className="text-center pt-3 text-xs text-slate-500 dark:text-slate-400 space-y-1">
         <div className="font-bold text-slate-700 dark:text-slate-300">
-          🇳🇵 MeroTools / Nepal Tools
+          🇳🇵 Mero Tools / Nepal Tools
         </div>
         <div>
           {t.version} 1.0.0 • {language === 'ne' ? 'अफलाइन गणना समर्थन' : 'Offline Engine Supported'}
@@ -212,7 +212,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <strong>2. Gold and Silver Bullion Rates:</strong> Precious metal prices are referenced from the indicative market guidelines published by <strong>Federation of Nepal Gold and Silver Dealers’ Association (FENEGOSIDA)</strong>.
               </p>
               <p className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/60 text-amber-900 dark:text-amber-200 font-medium">
-                <strong>Disclaimer:</strong> All calculations, loan amortization figures, bullion rates, and exchange rates provided in MeroTools are for informational and general utility purposes only. Please confirm final rates and terms with your bank, tax advisor, or authorized bullion merchant before completing official commercial transactions.
+                <strong>Disclaimer:</strong> All calculations, loan amortization figures, bullion rates, and exchange rates provided in Mero Tools are for informational and general utility purposes only. Please confirm final rates and terms with your bank, tax advisor, or authorized bullion merchant before completing official commercial transactions.
               </p>
             </div>
 
