@@ -24,6 +24,7 @@ const UnitConverter = lazy(() => import('./components/tools/UnitConverter').then
 const VatCalculator = lazy(() => import('./components/tools/VatCalculator').then((m) => ({ default: m.VatCalculator })));
 const EmiCalculator = lazy(() => import('./components/tools/EmiCalculator').then((m) => ({ default: m.EmiCalculator })));
 const CompoundInterestCalculator = lazy(() => import('./components/tools/CompoundInterestCalculator').then((m) => ({ default: m.CompoundInterestCalculator })));
+const SavedLoans = lazy(() => import('./components/tools/SavedLoans').then((m) => ({ default: m.SavedLoans })));
 
 const ToolLoadingFallback: React.FC = () => (
   <div className="flex items-center justify-center py-24">
@@ -105,6 +106,7 @@ export default function App() {
     'vat-calculator': t.vatCalculator,
     'emi-calculator': t.emiCalculator,
     'compound-interest': t.compoundInterest,
+    'saved-loans': t.savedLoans,
   };
 
   const allToolsList: ToolId[] = [
@@ -123,6 +125,7 @@ export default function App() {
     'vat-calculator',
     'emi-calculator',
     'compound-interest',
+    'saved-loans',
     'date-difference',
   ];
 
@@ -184,6 +187,7 @@ export default function App() {
                 if (tId === 'vat-calculator') shortName = t.vatCalculatorShort;
                 if (tId === 'emi-calculator') shortName = t.emiCalculatorShort;
                 if (tId === 'compound-interest') shortName = t.compoundInterestShort;
+                if (tId === 'saved-loans') shortName = t.savedLoansShort;
                 if (tId === 'date-difference') shortName = t.dateDifferenceShort;
 
                 return (
@@ -221,7 +225,13 @@ export default function App() {
                 {activeTool === 'date-difference' && <DateDifference language={language} />}
                 {activeTool === 'vat-calculator' && <VatCalculator language={language} />}
                 {activeTool === 'emi-calculator' && <EmiCalculator language={language} />}
-                {activeTool === 'compound-interest' && <CompoundInterestCalculator language={language} />}
+                {activeTool === 'compound-interest' && (
+                  <CompoundInterestCalculator
+                    language={language}
+                    onViewSavedLoans={() => setActiveTool('saved-loans')}
+                  />
+                )}
+                {activeTool === 'saved-loans' && <SavedLoans language={language} />}
               </Suspense>
             </div>
           </div>

@@ -182,7 +182,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {t.everydayTools}
             </h2>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              {language === 'ne' ? '१६ वटा टूल्स' : '16 Tools'}
+              {language === 'ne' ? '१७ वटा टूल्स' : '17 Tools'}
             </span>
           </div>
 

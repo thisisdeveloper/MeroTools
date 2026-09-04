@@ -174,6 +174,16 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
       isOffline: true,
     },
     {
+      id: 'saved-loans',
+      title: t.savedLoans,
+      desc: t.savedLoansDesc,
+      icon: '💾',
+      iconBg: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
+      category: 'finance',
+      categoryLabel: isNe ? 'सुरक्षित ऋण' : 'Saved',
+      isOffline: true,
+    },
+    {
       id: 'vat-calculator',
       title: t.vatCalculator,
       desc: t.vatCalculatorDesc,
@@ -254,8 +264,8 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {isNe
-                ? '१६ वटा नेपाल-केन्द्रित क्यालकुलेटर तथा सूचना टूल्स'
-                : '16 complete Nepal-centric calculators and information tools'}
+                ? '१७ वटा नेपाल-केन्द्रित क्यालकुलेटर तथा सूचना टूल्स'
+                : '17 complete Nepal-centric calculators and information tools'}
             </p>
           </div>
 

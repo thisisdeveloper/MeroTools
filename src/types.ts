@@ -14,7 +14,8 @@ export type ToolId =
   | 'unit-converter'
   | 'vat-calculator'
   | 'emi-calculator'
-  | 'compound-interest';
+  | 'compound-interest'
+  | 'saved-loans';
 
 export type TabId = 'home' | 'tools' | 'settings';
 
@@ -144,6 +145,7 @@ export interface CompoundInterestResult {
   annualRate: number;
   years: number;
   months: number;
+  days: number;
   frequency: CompoundingFrequency;
   regularDeposit: number;
   regularDepositFrequency: 'monthly' | 'yearly';
@@ -153,6 +155,37 @@ export interface CompoundInterestResult {
   simpleInterestComparison: number;
   compoundInterestAdvantage: number;
   yearlySchedule: CompoundInterestYearlySchedule[];
+}
+
+export interface SavedLoanClosedSnapshot {
+  years: number;
+  months: number;
+  days: number;
+  totalInterest: number;
+  maturityAmount: number;
+}
+
+export interface SavedLoanRecord {
+  id: string;
+  title: string;
+  createdAt: string;
+  status: 'active' | 'closed';
+  closedAt: string | null;
+
+  // Original loan parameters, needed to recompute interest as of "today"
+  principal: number;
+  rate: number;
+  frequency: CompoundingFrequency;
+  regularDeposit: number;
+  regularDepositFrequency: 'monthly' | 'yearly';
+
+  // Canonical AD start date (converted from BS at save time if needed)
+  startDateAd: ADDate;
+
+  plannedMaturityAmount: number;
+
+  // Frozen result as of the moment the loan was closed; present only when closed
+  closedSnapshot: SavedLoanClosedSnapshot | null;
 }
 
 export interface MetalRateItem {

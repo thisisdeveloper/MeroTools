@@ -28,13 +28,15 @@ export function calculateCompoundInterest(
   months: number = 0,
   frequency: CompoundingFrequency = 'annual',
   regularDeposit: number = 0,
-  regularDepositFrequency: 'monthly' | 'yearly' = 'monthly'
+  regularDepositFrequency: 'monthly' | 'yearly' = 'monthly',
+  days: number = 0
 ): CompoundInterestResult {
   const safeP = Math.max(0, principal || 0);
   const safeRate = Math.max(0, annualRatePct || 0);
   const safeYears = Math.max(0, years || 0);
   const safeMonths = Math.max(0, months || 0);
-  const totalYears = safeYears + safeMonths / 12;
+  const safeDays = Math.max(0, days || 0);
+  const totalYears = safeYears + safeMonths / 12 + safeDays / 365;
   const safeDeposit = Math.max(0, regularDeposit || 0);
 
   const n = getCompoundingFrequencyCount(frequency);
@@ -46,6 +48,7 @@ export function calculateCompoundInterest(
       annualRate: safeRate,
       years: safeYears,
       months: safeMonths,
+      days: safeDays,
       frequency,
       regularDeposit: safeDeposit,
       regularDepositFrequency,
@@ -136,6 +139,7 @@ export function calculateCompoundInterest(
     annualRate: safeRate,
     years: safeYears,
     months: safeMonths,
+    days: safeDays,
     frequency,
     regularDeposit: safeDeposit,
     regularDepositFrequency,
