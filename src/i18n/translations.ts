@@ -214,6 +214,12 @@ export const TRANSLATIONS = {
     locationRemindersDesc: 'Get reminded about tasks when you arrive at a specific location.',
     smartTaskRemindersTitle: 'Smart Task Reminders',
     smartTaskRemindersDesc: 'Create reminders for tasks and important things.',
+
+    // Most Used Tools
+    mostUsedTools: 'Most Used',
+    mostUsedToolsDesc: 'Your frequently used tools, right at the top',
+    expand: 'Expand',
+    collapse: 'Collapse',
   },
   ne: {
     appName: 'मेरो टूल्स',
@@ -428,6 +434,12 @@ export const TRANSLATIONS = {
     locationRemindersDesc: 'तपाईं कुनै विशेष स्थानमा पुग्दा त्यहाँका कार्यहरूको सम्झना गराइनेछ।',
     smartTaskRemindersTitle: 'स्मार्ट कार्य रिमाइन्डर',
     smartTaskRemindersDesc: 'कार्य र महत्त्वपूर्ण कुराहरूको लागि रिमाइन्डर बनाउनुहोस्।',
+
+    // Most Used Tools
+    mostUsedTools: 'बढी प्रयोग हुने',
+    mostUsedToolsDesc: 'तपाईंले प्रायः प्रयोग गर्ने टूल्स, माथि नै',
+    expand: 'फैलाउनुहोस्',
+    collapse: 'खुम्च्याउनुहोस्',
   },
 };
 

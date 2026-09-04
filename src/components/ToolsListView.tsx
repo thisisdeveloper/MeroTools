@@ -2,11 +2,25 @@ import React, { useState, useMemo } from 'react';
 import {
   Calendar,
   ChevronRight,
+  ChevronDown,
   Search,
   SlidersHorizontal,
+  Flame,
 } from 'lucide-react';
 import { ToolId, Language } from '../types';
 import { getTranslation } from '../i18n/translations';
+import { getMostUsedTools } from '../services/toolUsage';
+
+interface ToolCardData {
+  id: ToolId;
+  title: string;
+  desc: string;
+  icon: string;
+  iconBg: string;
+  category: 'calendar' | 'finance' | 'utilities' | 'units';
+  categoryLabel: string;
+  isOffline: boolean;
+}
 
 interface ToolsListViewProps {
   language: Language;
@@ -23,16 +37,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  const tools: {
-    id: ToolId;
-    title: string;
-    desc: string;
-    icon: string;
-    iconBg: string;
-    category: 'calendar' | 'finance' | 'utilities' | 'units';
-    categoryLabel: string;
-    isOffline: boolean;
-  }[] = [
+  const tools: ToolCardData[] = [
     {
       id: 'nepali-calendar',
       title: t.nepaliCalendar,
@@ -206,7 +211,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
   ];
 
   const categories = [
-    { id: 'all', labelEn: 'All Tools', labelNe: 'सबै टूल्स (१६)' },
+    { id: 'all', labelEn: 'All Tools', labelNe: 'सबै टूल्स (१७)' },
     { id: 'calendar', labelEn: 'Calendar & Dates', labelNe: 'पात्रो र मिति' },
     { id: 'finance', labelEn: 'Financial & Tax', labelNe: 'वित्त तथा कर' },
     { id: 'utilities', labelEn: 'Daily Utilities', labelNe: 'दैनिक उपयोगिता' },
@@ -253,8 +258,104 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
     });
   }, [tools, selectedCategory, searchQuery]);
 
+  const [mostUsedIds] = useState<ToolId[]>(() => getMostUsedTools(4));
+  const mostUsedTools = useMemo(
+    () =>
+      mostUsedIds
+        .map((id) => tools.find((tool) => tool.id === id))
+        .filter((tool): tool is ToolCardData => !!tool),
+    [mostUsedIds, tools]
+  );
+
+  const [isMostUsedCollapsed, setIsMostUsedCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('merotools_most_used_collapsed') === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleMostUsedCollapsed = () => {
+    setIsMostUsedCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('merotools_most_used_collapsed', next ? '1' : '0');
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const renderToolCard = (tool: ToolCardData, idPrefix: string) => (
+    <button
+      key={tool.id}
+      id={`${idPrefix}-${tool.id}`}
+      onClick={() => onSelectTool(tool.id)}
+      className="w-full group p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-red-300 dark:hover:border-slate-700 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex items-center justify-between gap-3"
+    >
+      <div className="flex items-center gap-3.5 min-w-0">
+        <div
+          className={`w-12 h-12 rounded-2xl ${tool.iconBg} text-2xl flex items-center justify-center group-hover:scale-105 transition-transform shrink-0 shadow-sm`}
+        >
+          {tool.icon}
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate leading-snug">
+              {tool.title}
+            </h3>
+            <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
+              {tool.categoryLabel}
+            </span>
+          </div>
+          <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+            {tool.desc}
+          </p>
+        </div>
+      </div>
+
+      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
+    </button>
+  );
+
   return (
     <div id="tools-list-view" className="space-y-5 max-w-4xl mx-auto pb-6">
+      {/* Most Used Tools */}
+      {mostUsedTools.length > 0 && (
+        <div id="most-used-tools-section" className="space-y-4">
+          <div className="px-1 flex items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-1.5">
+                <Flame className="w-4 h-4 text-red-500" />
+                {t.mostUsedTools}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                {t.mostUsedToolsDesc}
+              </p>
+            </div>
+
+            <button
+              id="most-used-collapse-toggle"
+              onClick={toggleMostUsedCollapsed}
+              aria-label={isMostUsedCollapsed ? t.expand : t.collapse}
+              title={isMostUsedCollapsed ? t.expand : t.collapse}
+              className="shrink-0 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-slate-700 transition-all active:scale-95"
+            >
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${isMostUsedCollapsed ? '-rotate-90' : ''}`}
+              />
+            </button>
+          </div>
+
+          {!isMostUsedCollapsed && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {mostUsedTools.map((tool) => renderToolCard(tool, 'most-used-item'))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Header & Search */}
       <div className="space-y-4">
         <div className="px-1 flex items-center justify-between">
@@ -322,37 +423,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
 
       {/* Tools Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-1">
-        {filteredTools.map((tool) => (
-          <button
-            key={tool.id}
-            id={`tools-item-${tool.id}`}
-            onClick={() => onSelectTool(tool.id)}
-            className="w-full group p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-red-300 dark:hover:border-slate-700 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex items-center justify-between gap-3"
-          >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div
-                className={`w-12 h-12 rounded-2xl ${tool.iconBg} text-2xl flex items-center justify-center group-hover:scale-105 transition-transform shrink-0 shadow-sm`}
-              >
-                {tool.icon}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate leading-snug">
-                    {tool.title}
-                  </h3>
-                  <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
-                    {tool.categoryLabel}
-                  </span>
-                </div>
-                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                  {tool.desc}
-                </p>
-              </div>
-            </div>
-
-            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
-          </button>
-        ))}
+        {filteredTools.map((tool) => renderToolCard(tool, 'tools-item'))}
       </div>
 
       {/* Coming Soon Section */}

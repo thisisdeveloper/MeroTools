@@ -6,6 +6,7 @@ import { ToolsListView } from './components/ToolsListView';
 import { SettingsView } from './components/SettingsView';
 import { TabId, ToolId, Language, ThemeMode } from './types';
 import { getTranslation } from './i18n/translations';
+import { recordToolUsage } from './services/toolUsage';
 import { ArrowLeft, Sparkles, Share2 } from 'lucide-react';
 
 const DateConverter = lazy(() => import('./components/tools/DateConverter').then((m) => ({ default: m.DateConverter })));
@@ -82,6 +83,7 @@ export default function App() {
 
   const handleOpenTool = (toolId: ToolId) => {
     setActiveTool(toolId);
+    recordToolUsage(toolId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -194,7 +196,7 @@ export default function App() {
                   <button
                     key={tId}
                     id={`chip-tool-${tId}`}
-                    onClick={() => setActiveTool(tId)}
+                    onClick={() => handleOpenTool(tId)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-red-600 text-white shadow-md shadow-red-200 dark:shadow-none'
@@ -228,7 +230,7 @@ export default function App() {
                 {activeTool === 'compound-interest' && (
                   <CompoundInterestCalculator
                     language={language}
-                    onViewSavedLoans={() => setActiveTool('saved-loans')}
+                    onViewSavedLoans={() => handleOpenTool('saved-loans')}
                   />
                 )}
                 {activeTool === 'saved-loans' && <SavedLoans language={language} />}
