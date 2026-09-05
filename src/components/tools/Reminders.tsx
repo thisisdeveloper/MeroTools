@@ -31,12 +31,52 @@ type FilterType = 'today' | 'upcoming' | 'completed' | 'all';
 
 const TYPE_META: Record<
   Extract<ReminderType, 'task' | 'birthday' | 'anniversary' | 'bill'>,
-  { icon: React.FC<{ className?: string }>; iconBg: string; defaultRepeat: RepeatMode; labelEn: string; labelNe: string }
+  {
+    icon: React.FC<{ className?: string }>;
+    iconBg: string;
+    defaultRepeat: RepeatMode;
+    labelEn: string;
+    labelNe: string;
+    placeholderEn: string;
+    placeholderNe: string;
+  }
 > = {
-  task: { icon: ListTodo, iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400', defaultRepeat: 'none', labelEn: 'Task', labelNe: 'कार्य' },
-  birthday: { icon: Cake, iconBg: 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400', defaultRepeat: 'yearly', labelEn: 'Birthday', labelNe: 'जन्मदिन' },
-  anniversary: { icon: Heart, iconBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400', defaultRepeat: 'yearly', labelEn: 'Anniversary', labelNe: 'वार्षिकोत्सव' },
-  bill: { icon: Receipt, iconBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400', defaultRepeat: 'monthly', labelEn: 'Bill', labelNe: 'बिल' },
+  task: {
+    icon: ListTodo,
+    iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
+    defaultRepeat: 'none',
+    labelEn: 'Task',
+    labelNe: 'कार्य',
+    placeholderEn: 'e.g. Pay electricity bill',
+    placeholderNe: 'जस्तै: बिजुली बिल तिर्ने',
+  },
+  birthday: {
+    icon: Cake,
+    iconBg: 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400',
+    defaultRepeat: 'yearly',
+    labelEn: 'Birthday',
+    labelNe: 'जन्मदिन',
+    placeholderEn: "e.g. Rahul's Birthday",
+    placeholderNe: 'जस्तै: राहुलको जन्मदिन',
+  },
+  anniversary: {
+    icon: Heart,
+    iconBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400',
+    defaultRepeat: 'yearly',
+    labelEn: 'Anniversary',
+    labelNe: 'वार्षिकोत्सव',
+    placeholderEn: 'e.g. Wedding Anniversary',
+    placeholderNe: 'जस्तै: विवाह वार्षिकोत्सव',
+  },
+  bill: {
+    icon: Receipt,
+    iconBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400',
+    defaultRepeat: 'monthly',
+    labelEn: 'Bill',
+    labelNe: 'बिल',
+    placeholderEn: 'e.g. Internet Bill',
+    placeholderNe: 'जस्तै: इन्टरनेट बिल',
+  },
 };
 
 function todayAd(): ADDate {
@@ -353,7 +393,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
                 type="text"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
-                placeholder={isNe ? 'जस्तै: बिजुली बिल तिर्ने' : "e.g. Pay electricity bill"}
+                placeholder={isNe ? TYPE_META[formType].placeholderNe : TYPE_META[formType].placeholderEn}
                 className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
             </div>
