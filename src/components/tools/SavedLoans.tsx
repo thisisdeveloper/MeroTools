@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ArrowLeft,
   Wallet,
   Calendar,
   CheckCircle2,
@@ -24,6 +25,7 @@ import { AD_MONTHS_EN, AD_MONTHS_NE } from '../../calendar/bsCalendar';
 
 interface SavedLoansProps {
   language: Language;
+  onBack?: () => void;
 }
 
 type FilterType = 'all' | 'active' | 'closed';
@@ -33,7 +35,7 @@ function formatAdDate(d: { year: number; month: number; day: number }, isNe: boo
   return `${d.day} ${mName} ${d.year}`;
 }
 
-export const SavedLoans: React.FC<SavedLoansProps> = ({ language }) => {
+export const SavedLoans: React.FC<SavedLoansProps> = ({ language, onBack }) => {
   const t = getTranslation(language);
   const isNe = language === 'ne';
 
@@ -131,8 +133,8 @@ export const SavedLoans: React.FC<SavedLoansProps> = ({ language }) => {
   return (
     <div id="saved-loans-tool" className="space-y-5">
       {/* Header & Filter Pills */}
-      <div className="px-1 flex items-center justify-between">
-        <div>
+      <div className="px-1 flex items-center justify-between gap-2">
+        <div className="min-w-0">
           <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">
             {t.savedLoans}
           </h2>
@@ -140,6 +142,18 @@ export const SavedLoans: React.FC<SavedLoansProps> = ({ language }) => {
             {t.savedLoansDesc}
           </p>
         </div>
+        {onBack && (
+          <button
+            id="tool-back-btn"
+            onClick={onBack}
+            aria-label={language === 'ne' ? 'पछाडि' : 'Back'}
+            title={language === 'ne' ? 'पछाडि (Back)' : 'Back'}
+            className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95"
+          >
+            <ArrowLeft className="w-4 h-4 text-red-600" />
+            <span className="hidden sm:inline">{language === 'ne' ? 'पछाडि (Back)' : 'Back'}</span>
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">

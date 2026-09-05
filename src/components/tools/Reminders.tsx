@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ArrowLeft,
   Bell,
   CheckCircle2,
   Pencil,
@@ -25,6 +26,7 @@ import { TYPE_META } from '../../data/reminderTypeMeta';
 
 interface RemindersProps {
   language: Language;
+  onBack?: () => void;
 }
 
 type FilterType = 'today' | 'missed' | 'upcoming' | 'completed' | 'all';
@@ -35,7 +37,7 @@ function todayAd(): ADDate {
   return getTodayDate().ad;
 }
 
-export const Reminders: React.FC<RemindersProps> = ({ language }) => {
+export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
   const t = getTranslation(language);
   const isNe = language === 'ne';
   const today = todayAd();
@@ -193,8 +195,8 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
   return (
     <div id="reminders-tool" className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between px-1">
-        <div>
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="min-w-0">
           <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">
             {isNe ? 'रिमाइन्डरहरू' : 'Reminders'}
           </h2>
@@ -202,6 +204,18 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
             {isNe ? 'कार्य, जन्मदिन, बिल र थप' : 'Tasks, birthdays, bills and more'}
           </p>
         </div>
+        {onBack && (
+          <button
+            id="tool-back-btn"
+            onClick={onBack}
+            aria-label={isNe ? 'पछाडि' : 'Back'}
+            title={isNe ? 'पछाडि (Back)' : 'Back'}
+            className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95"
+          >
+            <ArrowLeft className="w-4 h-4 text-red-600" />
+            <span className="hidden sm:inline">{isNe ? 'पछाडि (Back)' : 'Back'}</span>
+          </button>
+        )}
       </div>
 
       {/* Quick add row */}

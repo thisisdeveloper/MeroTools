@@ -249,27 +249,27 @@ export default function App() {
               })}
             </div>
 
-            {/* Tool Top Bar with Title and Back Button — title omitted for
-                tools that already render their own page title/subtitle
-                internally, so it isn't shown twice. */}
-            <div className="flex items-center justify-between gap-2 pb-1">
-              {!SELF_TITLED_TOOLS.has(activeTool) && (
+            {/* Tool Top Bar with Title and Back Button — omitted entirely
+                for tools that render their own title + back button inline
+                in their own header (see SELF_TITLED_TOOLS below). */}
+            {!SELF_TITLED_TOOLS.has(activeTool) && (
+              <div className="flex items-center justify-between gap-2 pb-1">
                 <h2 className="flex-1 min-w-0 truncate text-sm sm:text-base font-black text-slate-800 dark:text-slate-100">
                   {toolTitles[activeTool]}
                 </h2>
-              )}
 
-              <button
-                id="tool-back-btn"
-                onClick={handleBackToOverview}
-                aria-label={language === 'ne' ? 'पछाडि' : 'Back'}
-                title={language === 'ne' ? 'पछाडि (Back)' : 'Back'}
-                className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95 ml-auto"
-              >
-                <ArrowLeft className="w-4 h-4 text-red-600" />
-                <span className="hidden sm:inline">{language === 'ne' ? 'पछाडि (Back)' : 'Back'}</span>
-              </button>
-            </div>
+                <button
+                  id="tool-back-btn"
+                  onClick={handleBackToOverview}
+                  aria-label={language === 'ne' ? 'पछाडि' : 'Back'}
+                  title={language === 'ne' ? 'पछाडि (Back)' : 'Back'}
+                  className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-red-600" />
+                  <span className="hidden sm:inline">{language === 'ne' ? 'पछाडि (Back)' : 'Back'}</span>
+                </button>
+              </div>
+            )}
 
             {/* Active Tool Body */}
             <div className="pt-2">
@@ -295,9 +295,9 @@ export default function App() {
                     onViewSavedLoans={() => handleOpenTool('saved-loans')}
                   />
                 )}
-                {activeTool === 'saved-loans' && <SavedLoans language={language} />}
-                {activeTool === 'reminders' && <Reminders language={language} />}
-                {activeTool === 'shopping-list' && <ShoppingLists language={language} />}
+                {activeTool === 'saved-loans' && <SavedLoans language={language} onBack={handleBackToOverview} />}
+                {activeTool === 'reminders' && <Reminders language={language} onBack={handleBackToOverview} />}
+                {activeTool === 'shopping-list' && <ShoppingLists language={language} onBack={handleBackToOverview} />}
               </Suspense>
             </div>
           </div>

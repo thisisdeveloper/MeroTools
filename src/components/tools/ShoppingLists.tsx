@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronLeft, ListChecks, Plus, RotateCcw, Trash2, X, CheckCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ListChecks, Plus, RotateCcw, Trash2, X, CheckCheck, CheckCircle2 } from 'lucide-react';
 import { ADDate, Language, ShoppingListRecord } from '../../types';
 import { getTranslation } from '../../i18n/translations';
 import { formatNepaliCurrency } from '../../services/forex';
@@ -25,6 +25,7 @@ import { AdDatePicker } from '../AdDatePicker';
 
 interface ShoppingListsProps {
   language: Language;
+  onBack?: () => void;
 }
 
 const COMMON_UNITS: { value: string; labelEn: string; labelNe: string }[] = [
@@ -40,7 +41,7 @@ const COMMON_UNITS: { value: string; labelEn: string; labelNe: string }[] = [
   { value: 'other', labelEn: 'Other…', labelNe: 'अन्य…' },
 ];
 
-export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
+export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language, onBack }) => {
   const t = getTranslation(language);
   const isNe = language === 'ne';
 
@@ -231,13 +232,27 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
   if (!activeList) {
     return (
       <div id="shopping-lists-tool" className="space-y-5">
-        <div className="px-1">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">
-            {isNe ? 'किनमेल सूची' : 'Shopping Lists'}
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isNe ? 'तपाईंका सबै किनमेल सूचीहरू' : 'All your shopping lists'}
-          </p>
+        <div className="px-1 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">
+              {isNe ? 'किनमेल सूची' : 'Shopping Lists'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              {isNe ? 'तपाईंका सबै किनमेल सूचीहरू' : 'All your shopping lists'}
+            </p>
+          </div>
+          {onBack && (
+            <button
+              id="tool-back-btn"
+              onClick={onBack}
+              aria-label={isNe ? 'पछाडि' : 'Back'}
+              title={isNe ? 'पछाडि (Back)' : 'Back'}
+              className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95"
+            >
+              <ArrowLeft className="w-4 h-4 text-red-600" />
+              <span className="hidden sm:inline">{isNe ? 'पछाडि (Back)' : 'Back'}</span>
+            </button>
+          )}
         </div>
 
         {lists.length === 0 ? (
