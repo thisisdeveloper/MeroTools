@@ -27,7 +27,7 @@ interface RemindersProps {
   language: Language;
 }
 
-type FilterType = 'today' | 'upcoming' | 'completed' | 'all';
+type FilterType = 'today' | 'missed' | 'upcoming' | 'completed' | 'all';
 
 const TYPE_META: Record<
   Extract<ReminderType, 'task' | 'birthday' | 'anniversary' | 'bill'>,
@@ -156,6 +156,14 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
     if (filter === 'today') {
       return withDays.filter((x) => x.days === 0);
     }
+    if (filter === 'missed') {
+      // Only one-time reminders can be "missed" — recurring ones (birthday,
+      // anniversary, monthly bill) auto-advance to their next occurrence
+      // instead of going negative, so there's nothing to catch up on.
+      return withDays
+        .filter((x) => x.reminder.repeat === 'none' && !x.reminder.isCompleted && x.days < 0)
+        .sort((a, b) => a.days - b.days);
+    }
     // upcoming
     return withDays.filter((x) => x.days !== null && x.days > 0).sort((a, b) => a.days! - b.days!);
   }, [filter, reminders, withDays, today]);
@@ -167,8 +175,24 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
     return isNe ? `${toNepaliDigits(days)} दिनमा` : `In ${days} day${days === 1 ? '' : 's'}`;
   };
 
+  const missedCount = useMemo(
+    () => withDays.filter((x) => x.reminder.repeat === 'none' && !x.reminder.isCompleted && x.days < 0).length,
+    [withDays]
+  );
+
   const filters: { id: FilterType; label: string }[] = [
     { id: 'today', label: isNe ? 'आज' : 'Today' },
+    {
+      id: 'missed',
+      label:
+        missedCount > 0
+          ? isNe
+            ? `छुटेको (${toNepaliDigits(missedCount)})`
+            : `Missed (${missedCount})`
+          : isNe
+            ? 'छुटेको'
+            : 'Missed',
+    },
     { id: 'upcoming', label: isNe ? 'आगामी' : 'Upcoming' },
     { id: 'completed', label: isNe ? 'सम्पन्न' : 'Completed' },
     { id: 'all', label: isNe ? 'सबै' : 'All' },
@@ -176,6 +200,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
 
   const emptyMessage: Record<FilterType, string> = {
     today: isNe ? 'आजको लागि कुनै रिमाइन्डर छैन।' : 'No reminders for today.',
+    missed: isNe ? 'कुनै छुटेको रिमाइन्डर छैन।' : 'No missed reminders — you\'re all caught up.',
     upcoming: isNe ? 'कुनै आगामी रिमाइन्डर छैन।' : 'No upcoming reminders.',
     completed: isNe ? 'कुनै सम्पन्न कार्य छैन।' : 'No completed reminders yet.',
     all: isNe ? 'अहिलेसम्म कुनै रिमाइन्डर छैन।' : 'No reminders yet.',
