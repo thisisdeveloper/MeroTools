@@ -7,7 +7,10 @@ import { SettingsView } from './components/SettingsView';
 import { TabId, ToolId, Language, ThemeMode } from './types';
 import { getTranslation } from './i18n/translations';
 import { recordToolUsage } from './services/toolUsage';
+import { useHorizontalSwipe } from './hooks/useHorizontalSwipe';
 import { ArrowLeft, Sparkles, Share2 } from 'lucide-react';
+
+const TAB_ORDER: TabId[] = ['home', 'tools', 'settings'];
 
 const DateConverter = lazy(() => import('./components/tools/DateConverter').then((m) => ({ default: m.DateConverter })));
 const AgeCalculator = lazy(() => import('./components/tools/AgeCalculator').then((m) => ({ default: m.AgeCalculator })));
@@ -109,6 +112,24 @@ export default function App() {
     setActiveTool(null);
   };
 
+  // Swipe left/right cycles Home <-> Tools <-> Settings (clamped at the
+  // ends, no wraparound), matching BottomNav's left-to-right order.
+  const goToAdjacentTab = (direction: 1 | -1) => {
+    const nextIndex = TAB_ORDER.indexOf(currentTab) + direction;
+    if (nextIndex < 0 || nextIndex >= TAB_ORDER.length) return;
+    setActiveTool(null);
+    setCurrentTab(TAB_ORDER[nextIndex]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // On a tool page, swipe right acts like the Back button. On the main
+  // tabs, swipe left/right moves between tabs instead.
+  const swipeHandlers = useHorizontalSwipe(
+    activeTool
+      ? { onSwipeRight: handleBackToOverview }
+      : { onSwipeLeft: () => goToAdjacentTab(1), onSwipeRight: () => goToAdjacentTab(-1) }
+  );
+
   const toolTitles: Record<ToolId, string> = {
     'nepali-calendar': t.nepaliCalendar,
     'public-holidays': t.publicHolidays,
@@ -168,7 +189,10 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))]">
+      <main
+        className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))]"
+        {...swipeHandlers}
+      >
         {/* If a tool is active, display the tool wrapper */}
         {activeTool ? (
           <div className="space-y-4 max-w-3xl mx-auto">
