@@ -40,21 +40,21 @@ export const SavedAgesSummaryCard: React.FC<SavedAgesSummaryCardProps> = ({ lang
   return (
     <div
       id="saved-ages-summary-card"
-      className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 to-fuchsia-50 dark:from-rose-950/20 dark:to-fuchsia-950/20 border border-rose-200/50 dark:border-rose-900/30 space-y-2.5"
+      className="p-4 rounded-2xl bg-gradient-to-r from-green-50 via-yellow-50 to-blue-50 dark:from-green-950/20 dark:via-yellow-950/10 dark:to-blue-950/20 border border-teal-200/50 dark:border-teal-900/30 space-y-2.5"
     >
       <div
         onClick={() => onSelectTool('saved-ages')}
         className="flex items-center justify-between gap-3 cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-white/80 dark:bg-white/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-white/80 dark:bg-white/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
             <Cake className="w-4 h-4" />
           </div>
           <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
             {isNe ? 'जन्मदिनहरू' : 'Birthdays'}
           </div>
         </div>
-        <ArrowRight className="w-4 h-4 text-rose-500 shrink-0" />
+        <ArrowRight className="w-4 h-4 text-teal-600 shrink-0" />
       </div>
 
       {upcoming.length === 0 ? (
@@ -70,14 +70,14 @@ export const SavedAgesSummaryCard: React.FC<SavedAgesSummaryCardProps> = ({ lang
               key={age.id}
               className="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10"
             >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white dark:bg-white/10 text-rose-500 dark:text-rose-400">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white dark:bg-white/10 text-teal-600 dark:text-teal-400">
                 <Cake className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                   {age.name}
                 </div>
-                <div className="text-sm font-extrabold text-rose-600 dark:text-rose-400 truncate">
+                <div className="text-sm font-extrabold text-teal-600 dark:text-teal-400 truncate">
                   {dayLabel(daysUntil, isNe)}
                 </div>
               </div>
