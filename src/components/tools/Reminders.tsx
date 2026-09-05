@@ -6,6 +6,7 @@ import {
   Heart,
   Receipt,
   ListTodo,
+  Pencil,
   Plus,
   Trash2,
   X,
@@ -17,11 +18,23 @@ import { formatNepaliCurrency } from '../../services/forex';
 import {
   getReminders,
   saveReminder,
+  updateReminder,
   deleteReminder,
   toggleReminderCompleted,
   getDaysUntil,
 } from '../../services/reminders';
 import { AdDatePicker } from '../AdDatePicker';
+
+function formatTime12h(time: string, isNe: boolean): string {
+  const [hStr, mStr] = time.split(':');
+  const h = Number(hStr);
+  const m = Number(mStr);
+  const period = h >= 12 ? (isNe ? 'बे.' : 'PM') : isNe ? 'बि.' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const hDisplay = isNe ? toNepaliDigits(h12) : String(h12);
+  const mDisplay = isNe ? toNepaliDigits(m).padStart(2, toNepaliDigits(0)) : String(m).padStart(2, '0');
+  return `${hDisplay}:${mDisplay} ${period}`;
+}
 
 interface RemindersProps {
   language: Language;
@@ -92,35 +105,58 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
   const [filter, setFilter] = useState<FilterType>('today');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  // Add-reminder modal state
+  // Add/Edit reminder modal state — editingId is null when creating a new
+  // reminder, or the reminder's id when the modal was opened via Edit.
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formType, setFormType] = useState<keyof typeof TYPE_META>('task');
   const [formTitle, setFormTitle] = useState('');
   const [formDate, setFormDate] = useState<ADDate>(today);
+  const [formTime, setFormTime] = useState('');
   const [formRepeat, setFormRepeat] = useState<RepeatMode>('none');
   const [formAmount, setFormAmount] = useState('');
   const [formNotes, setFormNotes] = useState('');
 
   const openModal = (type: keyof typeof TYPE_META) => {
+    setEditingId(null);
     setFormType(type);
     setFormTitle('');
     setFormDate(today);
+    setFormTime('');
     setFormRepeat(TYPE_META[type].defaultRepeat);
     setFormAmount('');
     setFormNotes('');
     setShowModal(true);
   };
 
+  const openEditModal = (reminder: ReminderRecord) => {
+    setEditingId(reminder.id);
+    setFormType((reminder.type as keyof typeof TYPE_META) || 'task');
+    setFormTitle(reminder.title);
+    setFormDate(reminder.dateAd);
+    setFormTime(reminder.time || '');
+    setFormRepeat(reminder.repeat);
+    setFormAmount(reminder.amount != null ? String(reminder.amount) : '');
+    setFormNotes(reminder.notes || '');
+    setShowModal(true);
+  };
+
   const handleSave = () => {
     if (!formTitle.trim()) return;
-    saveReminder({
+    const payload = {
       type: formType,
       title: formTitle,
       notes: formNotes,
       dateAd: formDate,
+      time: formTime || null,
       repeat: formRepeat,
       amount: formType === 'bill' && formAmount ? Number(formAmount) : null,
-    });
+    };
+    if (editingId) {
+      updateReminder(editingId, payload);
+    } else {
+      saveReminder(payload);
+    }
     setReminders(getReminders());
     setShowModal(false);
   };
@@ -322,6 +358,11 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
                     >
                       {statusLabel(reminder.type, filter === 'completed' ? null : days)}
                     </span>
+                    {reminder.time && (
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                        {formatTime12h(reminder.time, isNe)}
+                      </span>
+                    )}
                     {reminder.amount != null && (
                       <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                         {formatNepaliCurrency(reminder.amount)}
@@ -346,13 +387,23 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    id={`reminder-delete-btn-${reminder.id}`}
-                    onClick={() => setConfirmDeleteId(reminder.id)}
-                    className="shrink-0 p-1.5 text-slate-400 hover:text-red-600 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <button
+                      id={`reminder-edit-btn-${reminder.id}`}
+                      onClick={() => openEditModal(reminder)}
+                      aria-label={t.edit}
+                      className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      id={`reminder-delete-btn-${reminder.id}`}
+                      onClick={() => setConfirmDeleteId(reminder.id)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
             );
@@ -376,7 +427,9 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100">
-                {isNe ? 'नयाँ रिमाइन्डर' : 'New Reminder'}
+                {editingId
+                  ? isNe ? 'रिमाइन्डर सम्पादन गर्नुहोस्' : 'Edit Reminder'
+                  : isNe ? 'नयाँ रिमाइन्डर' : 'New Reminder'}
               </h3>
               <button onClick={() => setShowModal(false)} className="text-slate-500 hover:text-slate-600 dark:hover:text-slate-200">
                 <X className="w-4 h-4" />
@@ -432,6 +485,30 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
                     : isNe ? 'मिति' : 'Date'}
               </label>
               <AdDatePicker idPrefix="reminder-date" value={formDate} onChange={setFormDate} language={language} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                {isNe ? 'समय (ऐच्छिक)' : 'Time (optional)'}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="reminder-time-input"
+                  type="time"
+                  value={formTime}
+                  onChange={(e) => setFormTime(e.target.value)}
+                  className="flex-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+                />
+                {formTime && (
+                  <button
+                    type="button"
+                    onClick={() => setFormTime('')}
+                    className="shrink-0 px-3 py-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    {isNe ? 'हटाउनुहोस्' : 'Clear'}
+                  </button>
+                )}
+              </div>
             </div>
 
             {formType === 'bill' && (
