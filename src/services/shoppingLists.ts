@@ -129,6 +129,17 @@ export function clearPurchasedItems(listId: string): void {
   touchList(listId);
 }
 
+// "Finish shopping" bulk action — marks every item in the list purchased
+// in one go, the counterpart to clearPurchasedItems() clearing them out.
+export function markAllItemsPurchased(listId: string): void {
+  const now = new Date().toISOString();
+  writeJson(
+    ITEMS_KEY,
+    getShoppingItems().map((i) => (i.listId === listId ? { ...i, isPurchased: true, updatedAt: now } : i))
+  );
+  touchList(listId);
+}
+
 // Estimated total: sum of entered prices only. Items with no price are
 // excluded from the sum entirely (never treated as 0), and quantity is
 // informational only — the entered price is read as the line's cost, not

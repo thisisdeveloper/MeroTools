@@ -363,7 +363,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
       <button
         id="reminders-fab"
         onClick={() => openModal('task')}
-        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
         aria-label={isNe ? 'रिमाइन्डर थप्नुहोस्' : 'Add reminder'}
       >
         <Plus className="w-6 h-6" />

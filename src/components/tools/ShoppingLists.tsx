@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronLeft, ListChecks, Plus, Trash2, X, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ListChecks, Plus, RotateCcw, Trash2, X, CheckCheck, CheckCircle2 } from 'lucide-react';
 import { Language, ShoppingListRecord } from '../../types';
 import { getTranslation } from '../../i18n/translations';
 import { formatNepaliCurrency } from '../../services/forex';
@@ -14,6 +14,7 @@ import {
   toggleItemPurchased,
   deleteShoppingItem,
   clearPurchasedItems,
+  markAllItemsPurchased,
   getEstimatedTotal,
 } from '../../services/shoppingLists';
 import { getItemSuggestions, rememberItemUnit, findExactItemMatch } from '../../services/itemSuggestions';
@@ -59,6 +60,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
   const [nameSuggestions, setNameSuggestions] = useState<{ name: string; unit: string | null }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [confirmDeleteItemId, setConfirmDeleteItemId] = useState<string | null>(null);
+  const [pendingHeaderAction, setPendingHeaderAction] = useState<'reset' | 'completeAll' | null>(null);
 
   const activeList = lists.find((l) => l.id === activeListId) || null;
   const items = useMemo(() => (activeListId ? getItemsForList(activeListId) : []), [activeListId, lists]);
@@ -192,6 +194,18 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
     setLists([...getShoppingLists()]);
   };
 
+  const handleMarkAllPurchased = () => {
+    if (!activeListId) return;
+    markAllItemsPurchased(activeListId);
+    setLists([...getShoppingLists()]);
+  };
+
+  const confirmHeaderAction = () => {
+    if (pendingHeaderAction === 'reset') handleClearPurchased();
+    else if (pendingHeaderAction === 'completeAll') handleMarkAllPurchased();
+    setPendingHeaderAction(null);
+  };
+
   // ---- List-of-lists view ----
   if (!activeList) {
     return (
@@ -263,7 +277,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
         <button
           id="shopping-list-fab"
           onClick={() => setShowNewListModal(true)}
-          className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
+          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
           aria-label={isNe ? 'नयाँ सूची' : 'New list'}
         >
           <Plus className="w-6 h-6" />
@@ -333,7 +347,55 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
         >
           {t.edit}
         </button>
+        {items.length > 0 && (
+          <>
+            <button
+              onClick={() => setPendingHeaderAction('completeAll')}
+              aria-label={isNe ? 'सबै किनियो भनी चिन्ह लगाउनुहोस्' : 'Mark all as purchased'}
+              className="p-1.5 rounded-full text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors shrink-0"
+            >
+              <CheckCheck className="w-4 h-4" />
+            </button>
+            {hasPurchased && (
+              <button
+                onClick={() => setPendingHeaderAction('reset')}
+                aria-label={isNe ? 'खरिद गरिएका हटाउनुहोस्' : 'Clear purchased items'}
+                className="p-1.5 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            )}
+          </>
+        )}
       </div>
+
+      {pendingHeaderAction && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 flex items-center justify-between gap-3">
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            {pendingHeaderAction === 'reset'
+              ? isNe
+                ? 'खरिद गरिएका सबै वस्तु हटाउने?'
+                : 'Clear all purchased items?'
+              : isNe
+                ? 'सबै वस्तु किनियो भनी चिन्ह लगाउने?'
+                : 'Mark all items as purchased?'}
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={confirmHeaderAction}
+              className="px-3 py-1.5 rounded-full text-xs font-bold bg-red-600 text-white"
+            >
+              {t.confirm}
+            </button>
+            <button
+              onClick={() => setPendingHeaderAction(null)}
+              className="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+            >
+              {t.cancel}
+            </button>
+          </div>
+        </div>
+      )}
 
       {items.length > 0 && (
         <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
@@ -411,19 +473,10 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
         </div>
       )}
 
-      {hasPurchased && (
-        <button
-          onClick={handleClearPurchased}
-          className="w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-        >
-          {isNe ? 'खरिद गरिएका हटाउनुहोस्' : 'Clear purchased items'}
-        </button>
-      )}
-
       <button
         id="shopping-item-fab"
         onClick={openAddItem}
-        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
         aria-label={isNe ? 'वस्तु थप्नुहोस्' : 'Add item'}
       >
         <Plus className="w-6 h-6" />
