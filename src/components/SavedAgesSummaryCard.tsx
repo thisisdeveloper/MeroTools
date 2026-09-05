@@ -40,25 +40,25 @@ export const SavedAgesSummaryCard: React.FC<SavedAgesSummaryCardProps> = ({ lang
   return (
     <div
       id="saved-ages-summary-card"
-      className="p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-900/40 space-y-2.5"
+      className="p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-600 text-white shadow-sm space-y-2.5"
     >
       <div
         onClick={() => onSelectTool('saved-ages')}
         className="flex items-center justify-between gap-3 cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
             <Cake className="w-4 h-4" />
           </div>
-          <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
+          <div className="text-xs font-bold text-white">
             {isNe ? 'जन्मदिनहरू' : 'Birthdays'}
           </div>
         </div>
-        <ArrowRight className="w-4 h-4 text-rose-600 shrink-0" />
+        <ArrowRight className="w-4 h-4 text-white/90 shrink-0" />
       </div>
 
       {upcoming.length === 0 ? (
-        <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 px-1">
+        <div className="text-[11px] font-semibold text-white/80 px-1">
           {isNe
             ? 'आगामी दिनहरूमा कुनै सुरक्षित जन्मदिन छैन।'
             : 'No saved birthdays coming up soon.'}
@@ -68,23 +68,23 @@ export const SavedAgesSummaryCard: React.FC<SavedAgesSummaryCardProps> = ({ lang
           {visible.map(({ age, daysUntil }) => (
             <div
               key={age.id}
-              className="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-white dark:bg-slate-900"
+              className="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15"
             >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/15 text-white">
                 <Cake className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                <div className="text-xs font-bold text-white truncate">
                   {age.name}
                 </div>
-                <div className="text-sm font-extrabold text-rose-600 dark:text-rose-400 truncate">
+                <div className="text-sm font-extrabold text-amber-100 truncate">
                   {dayLabel(daysUntil, isNe)}
                 </div>
               </div>
             </div>
           ))}
           {extra > 0 && (
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 px-1">
+            <div className="text-[11px] text-white/80 px-1">
               {isNe ? `+${toNepaliDigits(extra)} थप` : `+${extra} more`}
             </div>
           )}
