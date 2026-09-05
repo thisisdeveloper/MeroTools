@@ -284,6 +284,7 @@ export interface ShoppingItemRecord {
   listId: string;
   name: string;
   quantity: number;
+  unit: string | null;
   price: number | null;
   isPurchased: boolean;
   createdAt: string;

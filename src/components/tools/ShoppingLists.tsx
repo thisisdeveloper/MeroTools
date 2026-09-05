@@ -16,10 +16,24 @@ import {
   clearPurchasedItems,
   getEstimatedTotal,
 } from '../../services/shoppingLists';
+import { getItemSuggestions, rememberItemUnit, findExactItemMatch } from '../../services/itemSuggestions';
 
 interface ShoppingListsProps {
   language: Language;
 }
+
+const COMMON_UNITS: { value: string; labelEn: string; labelNe: string }[] = [
+  { value: '', labelEn: 'No unit', labelNe: 'एकाइ छैन' },
+  { value: 'kg', labelEn: 'kg', labelNe: 'के.जी.' },
+  { value: 'g', labelEn: 'g', labelNe: 'ग्राम' },
+  { value: 'L', labelEn: 'L', labelNe: 'लिटर' },
+  { value: 'mL', labelEn: 'mL', labelNe: 'मि.लि.' },
+  { value: 'pcs', labelEn: 'pcs', labelNe: 'थान' },
+  { value: 'dozen', labelEn: 'dozen', labelNe: 'दर्जन' },
+  { value: 'pack', labelEn: 'pack', labelNe: 'प्याक' },
+  { value: 'box', labelEn: 'box', labelNe: 'बाकस' },
+  { value: 'other', labelEn: 'Other…', labelNe: 'अन्य…' },
+];
 
 export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
   const t = getTranslation(language);
@@ -39,7 +53,11 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [itemName, setItemName] = useState('');
   const [itemQty, setItemQty] = useState('1');
+  const [itemUnit, setItemUnit] = useState('');
+  const [itemCustomUnit, setItemCustomUnit] = useState('');
   const [itemPrice, setItemPrice] = useState('');
+  const [nameSuggestions, setNameSuggestions] = useState<{ name: string; unit: string | null }[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [confirmDeleteItemId, setConfirmDeleteItemId] = useState<string | null>(null);
 
   const activeList = lists.find((l) => l.id === activeListId) || null;
@@ -72,11 +90,29 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
     if (activeListId === id) setActiveListId(null);
   };
 
+  // Splits a stored unit string into the (select value, custom text) pair
+  // the form needs — 'kg' -> ('kg', ''), 'bunch' -> ('other', 'bunch').
+  const applyUnitToForm = (unit: string | null) => {
+    if (!unit) {
+      setItemUnit('');
+      setItemCustomUnit('');
+    } else if (COMMON_UNITS.some((u) => u.value === unit)) {
+      setItemUnit(unit);
+      setItemCustomUnit('');
+    } else {
+      setItemUnit('other');
+      setItemCustomUnit(unit);
+    }
+  };
+
   const openAddItem = () => {
     setEditingItemId(null);
     setItemName('');
     setItemQty('1');
+    applyUnitToForm(null);
     setItemPrice('');
+    setNameSuggestions([]);
+    setShowSuggestions(false);
     setShowItemModal(true);
   };
 
@@ -86,15 +122,38 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
     setEditingItemId(id);
     setItemName(item.name);
     setItemQty(String(item.quantity));
+    applyUnitToForm(item.unit);
     setItemPrice(item.price != null ? String(item.price) : '');
+    setNameSuggestions([]);
+    setShowSuggestions(false);
     setShowItemModal(true);
+  };
+
+  const handleItemNameChange = (value: string) => {
+    setItemName(value);
+    setNameSuggestions(getItemSuggestions(value));
+    setShowSuggestions(value.trim().length > 0);
+    // Only auto-fill for a brand-new item — editing shouldn't clobber a
+    // unit the user already set just because the name happens to match.
+    if (!editingItemId) {
+      const match = findExactItemMatch(value);
+      if (match) applyUnitToForm(match.unit);
+    }
+  };
+
+  const handleSelectSuggestion = (suggestion: { name: string; unit: string | null }) => {
+    setItemName(suggestion.name);
+    applyUnitToForm(suggestion.unit);
+    setShowSuggestions(false);
   };
 
   const handleSaveItem = () => {
     if (!activeListId || !itemName.trim()) return;
+    const finalUnit = itemUnit === 'other' ? itemCustomUnit.trim() || null : itemUnit || null;
     const patch = {
       name: itemName,
       quantity: Number(itemQty) || 1,
+      unit: finalUnit,
       price: itemPrice.trim() === '' ? null : Number(itemPrice),
     };
     if (editingItemId) {
@@ -102,6 +161,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
     } else {
       addShoppingItem({ listId: activeListId, ...patch });
     }
+    rememberItemUnit(itemName, finalUnit);
     setLists([...getShoppingLists()]);
     setShowItemModal(false);
   };
@@ -308,7 +368,9 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                   {item.name}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {isNe ? `परिमाण: ${item.quantity}` : `Qty: ${item.quantity}`}
+                  {isNe
+                    ? `परिमाण: ${item.quantity}${item.unit ? ' ' + item.unit : ''}`
+                    : `Qty: ${item.quantity}${item.unit ? ' ' + item.unit : ''}`}
                   {item.price != null && ` · ${formatNepaliCurrency(item.price)}`}
                 </p>
               </button>
@@ -407,7 +469,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
               </button>
             </div>
 
-            <div>
+            <div className="relative">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 {isNe ? 'वस्तुको नाम' : 'Item name'}
               </label>
@@ -415,11 +477,35 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                 id="item-name-input"
                 type="text"
                 autoFocus
+                autoComplete="off"
                 value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
+                onChange={(e) => handleItemNameChange(e.target.value)}
+                onFocus={() => setShowSuggestions(nameSuggestions.length > 0)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 120)}
                 placeholder={isNe ? 'जस्तै: दूध' : 'e.g. Milk'}
                 className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
+              {showSuggestions && nameSuggestions.length > 0 && (
+                <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
+                  {nameSuggestions.map((s) => (
+                    <button
+                      key={s.name}
+                      type="button"
+                      onMouseDown={() => handleSelectSuggestion(s)}
+                      className="w-full flex items-center justify-between gap-2 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                        {s.name}
+                      </span>
+                      {s.unit && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 shrink-0">
+                          {s.unit}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -429,7 +515,8 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                 </label>
                 <input
                   type="number"
-                  min="1"
+                  min="0.01"
+                  step="any"
                   value={itemQty}
                   onChange={(e) => setItemQty(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
@@ -437,17 +524,49 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t.amount} ({isNe ? 'ऐच्छिक' : 'optional'})
+                  {isNe ? 'एकाइ' : 'Unit'}
+                </label>
+                <select
+                  value={itemUnit}
+                  onChange={(e) => setItemUnit(e.target.value)}
+                  className="w-full px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+                >
+                  {COMMON_UNITS.map((u) => (
+                    <option key={u.value} value={u.value}>
+                      {isNe ? u.labelNe : u.labelEn}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {itemUnit === 'other' && (
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {isNe ? 'एकाइ (आफैं लेख्नुहोस्)' : 'Custom unit'}
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  value={itemPrice}
-                  onChange={(e) => setItemPrice(e.target.value)}
-                  placeholder="0"
+                  type="text"
+                  value={itemCustomUnit}
+                  onChange={(e) => setItemCustomUnit(e.target.value)}
+                  placeholder={isNe ? 'जस्तै: मुठा' : 'e.g. bunch'}
                   className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
                 />
               </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                {t.amount} ({isNe ? 'ऐच्छिक' : 'optional'})
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={itemPrice}
+                onChange={(e) => setItemPrice(e.target.value)}
+                placeholder="0"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+              />
             </div>
 
             <div className="flex items-center gap-2 pt-1">

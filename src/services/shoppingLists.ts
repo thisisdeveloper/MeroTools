@@ -72,6 +72,7 @@ export interface NewShoppingItemInput {
   listId: string;
   name: string;
   quantity: number;
+  unit?: string | null;
   price?: number | null;
 }
 
@@ -81,7 +82,11 @@ export function addShoppingItem(input: NewShoppingItemInput): ShoppingItemRecord
     id: genId('item'),
     listId: input.listId,
     name: input.name.trim() || 'Untitled Item',
-    quantity: Math.max(1, input.quantity || 1),
+    // Small quantities like "0.5 kg" are valid, so the floor is just above
+    // zero rather than 1 (a whole-number-only assumption from before units
+    // existed).
+    quantity: Math.max(0.01, input.quantity || 1),
+    unit: input.unit?.trim() || null,
     price: input.price ?? null,
     isPurchased: false,
     createdAt: now,
