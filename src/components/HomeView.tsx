@@ -90,89 +90,90 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 3. Forex & Converter Section */}
       {homeSettings.forex && (
-      <section className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-100 dark:shadow-none">
-        <div>
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <span className="text-2xl">💵</span> {t.forex}
-            </h3>
-            <span className="px-3 py-1 bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase rounded-full">
-              NRB Live
-            </span>
+      <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 flex items-center justify-center text-lg shrink-0">
+              💵
+            </div>
+            <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{t.forex}</span>
           </div>
+          <span className="px-2.5 py-1 bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase rounded-full shrink-0">
+            NRB Live
+          </span>
+        </div>
 
-          {/* Currency Glance Rows */}
-          <div className="space-y-3.5">
-            {usdRate && (
-              <div
-                onClick={() => onSelectTool('forex')}
-                className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{usdRate.flag}</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">USD</span>
-                </div>
-                <div className="text-right">
-                  <div className="font-black text-slate-800 dark:text-slate-100 text-base">
-                    Rs {usdRate.buy.toFixed(2)}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-medium">{t.buyRate}</div>
-                </div>
+        {/* Currency Glance Rows */}
+        <div className="space-y-2">
+          {usdRate && (
+            <div
+              onClick={() => onSelectTool('forex')}
+              className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">{usdRate.flag}</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">USD</span>
               </div>
-            )}
+              <div className="text-right">
+                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
+                  Rs {usdRate.buy.toFixed(2)}
+                </div>
+                <div className="text-[10px] text-slate-500 font-medium">{t.buyRate}</div>
+              </div>
+            </div>
+          )}
 
-            {inrRate && (
-              <div
-                onClick={() => onSelectTool('forex')}
-                className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{inrRate.flag}</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">INR (100)</span>
-                </div>
-                <div className="text-right">
-                  <div className="font-black text-slate-800 dark:text-slate-100 text-base">
-                    Rs {inrRate.buy.toFixed(2)}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-medium">Fixed Rate</div>
-                </div>
+          {inrRate && (
+            <div
+              onClick={() => onSelectTool('forex')}
+              className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">{inrRate.flag}</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">INR (100)</span>
               </div>
-            )}
+              <div className="text-right">
+                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
+                  Rs {inrRate.buy.toFixed(2)}
+                </div>
+                <div className="text-[10px] text-slate-500 font-medium">Fixed Rate</div>
+              </div>
+            </div>
+          )}
 
-            {audRate && (
-              <div
-                onClick={() => onSelectTool('forex')}
-                className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{audRate.flag}</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">AUD</span>
-                </div>
-                <div className="text-right">
-                  <div className="font-black text-slate-800 dark:text-slate-100 text-base">
-                    Rs {audRate.buy.toFixed(2)}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-medium">{t.buyRate}</div>
-                </div>
+          {audRate && (
+            <div
+              onClick={() => onSelectTool('forex')}
+              className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">{audRate.flag}</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">AUD</span>
               </div>
-            )}
-          </div>
+              <div className="text-right">
+                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
+                  Rs {audRate.buy.toFixed(2)}
+                </div>
+                <div className="text-[10px] text-slate-500 font-medium">{t.buyRate}</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sleek CTA Card for Quick Converter */}
         <div
           onClick={() => onSelectTool('forex')}
-          className="mt-6 p-6 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-3xl text-white text-center cursor-pointer transition-all shadow-lg active:scale-98"
+          className="mt-3 p-3.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-xl text-white text-center cursor-pointer transition-all active:scale-98"
         >
-          <p className="text-xs text-slate-400 mb-1 font-medium">
+          <p className="text-[11px] text-slate-400 mb-0.5 font-medium">
             {language === 'ne' ? 'द्रुत विनिमय क्यालकुलेटर' : 'Convert Quickly'}
           </p>
-          <p className="text-lg font-bold flex items-center justify-center gap-2">
+          <p className="text-sm font-bold flex items-center justify-center gap-1.5">
             <span>{t.currencyConverter}</span>
-            <ArrowRight className="w-4 h-4 text-red-400" />
+            <ArrowRight className="w-3.5 h-3.5 text-red-400" />
           </p>
         </div>
-    </section>
+    </div>
       )}
     </div>
   );
