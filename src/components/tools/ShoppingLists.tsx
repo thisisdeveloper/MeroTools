@@ -50,6 +50,8 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
 
   const [showNewListModal, setShowNewListModal] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
+  const [newListNotes, setNewListNotes] = useState('');
+  const [newListPurchaseByDate, setNewListPurchaseByDate] = useState<ADDate | null>(null);
 
   const [showEditListModal, setShowEditListModal] = useState(false);
   const [editListTitle, setEditListTitle] = useState('');
@@ -84,11 +86,20 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
 
   const refreshLists = () => setLists(getShoppingLists());
 
+  const openNewListModal = () => {
+    setNewListTitle('');
+    setNewListNotes('');
+    setNewListPurchaseByDate(null);
+    setShowNewListModal(true);
+  };
+
   const handleCreateList = () => {
     if (!newListTitle.trim()) return;
     const record = createShoppingList(newListTitle);
+    if (newListNotes.trim() || newListPurchaseByDate) {
+      updateShoppingListDetails(record.id, { notes: newListNotes, purchaseByDate: newListPurchaseByDate });
+    }
     refreshLists();
-    setNewListTitle('');
     setShowNewListModal(false);
     setActiveListId(record.id);
   };
@@ -303,7 +314,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
 
         <button
           id="shopping-list-fab"
-          onClick={() => setShowNewListModal(true)}
+          onClick={openNewListModal}
           className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-5 z-30 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-xl flex items-center justify-center transition-all active:scale-95"
           aria-label={isNe ? 'नयाँ सूची' : 'New list'}
         >
@@ -312,7 +323,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
 
         {showNewListModal && (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100">
                   {isNe ? 'नयाँ सूची' : 'New List'}
@@ -321,15 +332,68 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <input
-                id="new-list-title-input"
-                type="text"
-                autoFocus
-                value={newListTitle}
-                onChange={(e) => setNewListTitle(e.target.value)}
-                placeholder={isNe ? 'जस्तै: घर किराना' : 'e.g. Home Grocery'}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
-              />
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {isNe ? 'सूचीको नाम' : 'List name'}
+                </label>
+                <input
+                  id="new-list-title-input"
+                  type="text"
+                  autoFocus
+                  value={newListTitle}
+                  onChange={(e) => setNewListTitle(e.target.value)}
+                  placeholder={isNe ? 'जस्तै: घर किराना' : 'e.g. Home Grocery'}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {isNe ? 'टिप्पणी (ऐच्छिक)' : 'Notes (optional)'}
+                </label>
+                <textarea
+                  value={newListNotes}
+                  onChange={(e) => setNewListNotes(e.target.value)}
+                  rows={2}
+                  placeholder={isNe ? 'जस्तै: साप्ताहिक किनमेल' : 'e.g. Weekly grocery run'}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {isNe ? 'किन्ने अन्तिम मिति (ऐच्छिक)' : 'Purchase by date (optional)'}
+                  </label>
+                  {newListPurchaseByDate && (
+                    <button
+                      type="button"
+                      onClick={() => setNewListPurchaseByDate(null)}
+                      className="text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400"
+                    >
+                      {isNe ? 'हटाउनुहोस्' : 'Clear'}
+                    </button>
+                  )}
+                </div>
+                {newListPurchaseByDate ? (
+                  <AdDatePicker
+                    idPrefix="new-shopping-list-purchase-by"
+                    value={newListPurchaseByDate}
+                    onChange={setNewListPurchaseByDate}
+                    language={language}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setNewListPurchaseByDate(getTodayDate().ad)}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    {isNe ? '+ मिति थप्नुहोस्' : '+ Set a date'}
+                  </button>
+                )}
+              </div>
+
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowNewListModal(false)}
