@@ -87,3 +87,26 @@ export function calculateAgeFromBs(dobBs: BSDate, targetDateAd?: ADDate): AgeRes
   const converted = bsToAd(dobBs);
   return calculateAgeFromAd(converted.ad, targetDateAd);
 }
+
+// Days elapsed since the most recent birthday anniversary (0 if today is
+// the birthday) — used to surface "birthday was N days ago" for a saved
+// person whose special day was recently missed, separate from AgeResult's
+// years/months/days (elapsed time since birth, not since the last annual
+// anniversary).
+export function getDaysSinceLastBirthday(dobAd: ADDate, targetDateAd?: ADDate): number {
+  const target = targetDateAd
+    ? new Date(Date.UTC(targetDateAd.year, targetDateAd.month - 1, targetDateAd.day))
+    : (() => {
+        const now = new Date();
+        return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+      })();
+
+  let lastBirthdayYear = target.getUTCFullYear();
+  let lastBirthday = new Date(Date.UTC(lastBirthdayYear, dobAd.month - 1, dobAd.day));
+  if (lastBirthday.getTime() > target.getTime()) {
+    lastBirthdayYear -= 1;
+    lastBirthday = new Date(Date.UTC(lastBirthdayYear, dobAd.month - 1, dobAd.day));
+  }
+
+  return Math.floor((target.getTime() - lastBirthday.getTime()) / (24 * 60 * 60 * 1000));
+}

@@ -3,7 +3,9 @@ import { ArrowLeft, Users, Cake, Pencil, Trash2, Check, X } from 'lucide-react';
 import { Language, SavedAgeRecord } from '../../types';
 import { getTranslation } from '../../i18n/translations';
 import { getSavedAges, renameAge, deleteAge } from '../../services/savedAges';
-import { calculateAgeFromAd } from '../../calculations/age';
+import { calculateAgeFromAd, getDaysSinceLastBirthday } from '../../calculations/age';
+
+const RECENT_BIRTHDAY_WINDOW_DAYS = 15;
 import { toNepaliDigits, AD_MONTHS_EN, AD_MONTHS_NE } from '../../calendar/bsCalendar';
 
 interface SavedAgesProps {
@@ -86,6 +88,9 @@ export const SavedAges: React.FC<SavedAgesProps> = ({ language, onBack }) => {
       <div className="space-y-4">
         {ages.map((age) => {
           const result = calculateAgeFromAd(age.dobAd);
+          const daysSinceBirthday = getDaysSinceLastBirthday(age.dobAd);
+          const isRecentBirthday =
+            !result.isTodayBirthday && daysSinceBirthday > 0 && daysSinceBirthday <= RECENT_BIRTHDAY_WINDOW_DAYS;
 
           return (
             <div
@@ -126,6 +131,15 @@ export const SavedAges: React.FC<SavedAgesProps> = ({ language, onBack }) => {
                   {result.isTodayBirthday && (
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 bg-amber-400/90 text-amber-950">
                       🎉 {isNe ? 'आजै जन्मदिन!' : 'Birthday today!'}
+                    </span>
+                  )}
+
+                  {isRecentBirthday && (
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 bg-rose-400/90 text-rose-950">
+                      🎂{' '}
+                      {isNe
+                        ? `${toNepaliDigits(daysSinceBirthday)} दिनअघि जन्मदिन थियो`
+                        : `Birthday was ${daysSinceBirthday} day${daysSinceBirthday === 1 ? '' : 's'} ago`}
                     </span>
                   )}
                 </div>
