@@ -192,6 +192,16 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
       isOffline: true,
     },
     {
+      id: 'saved-ages',
+      title: t.savedAges,
+      desc: t.savedAgesDesc,
+      icon: '🎈',
+      iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
+      category: 'personal',
+      categoryLabel: isNe ? 'उमेर' : 'Age',
+      isOffline: true,
+    },
+    {
       id: 'vat-calculator',
       title: t.vatCalculator,
       desc: t.vatCalculatorDesc,
@@ -234,7 +244,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
   ];
 
   const categories = [
-    { id: 'all', labelEn: 'All Tools', labelNe: 'सबै टूल्स (१९)' },
+    { id: 'all', labelEn: 'All Tools', labelNe: 'सबै टूल्स (२०)' },
     { id: 'calendar', labelEn: 'Calendar & Dates', labelNe: 'पात्रो र मिति' },
     { id: 'finance', labelEn: 'Financial & Tax', labelNe: 'वित्त तथा कर' },
     { id: 'utilities', labelEn: 'Daily Utilities', labelNe: 'दैनिक उपयोगिता' },

@@ -16,6 +16,7 @@ export type ToolId =
   | 'emi-calculator'
   | 'compound-interest'
   | 'saved-loans'
+  | 'saved-ages'
   | 'reminders'
   | 'shopping-list';
 
@@ -188,6 +189,15 @@ export interface SavedLoanRecord {
 
   // Frozen result as of the moment the loan was closed; present only when closed
   closedSnapshot: SavedLoanClosedSnapshot | null;
+}
+
+export interface SavedAgeRecord {
+  id: string;
+  name: string;
+  createdAt: string;
+  // Canonical AD date of birth (converted from BS at save time if needed) —
+  // current age is always recomputed live from this, never frozen.
+  dobAd: ADDate;
 }
 
 export interface MetalRateItem {

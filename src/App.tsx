@@ -15,7 +15,7 @@ const TAB_ORDER: TabId[] = ['home', 'tools', 'settings'];
 // Tools that already render their own page title + subtitle at the top
 // of their own body — the generic tool-bar title above the chips would
 // just duplicate it, so it's suppressed for these.
-const SELF_TITLED_TOOLS = new Set<ToolId>(['saved-loans', 'reminders', 'shopping-list']);
+const SELF_TITLED_TOOLS = new Set<ToolId>(['saved-loans', 'saved-ages', 'reminders', 'shopping-list']);
 
 const DateConverter = lazy(() => import('./components/tools/DateConverter').then((m) => ({ default: m.DateConverter })));
 const AgeCalculator = lazy(() => import('./components/tools/AgeCalculator').then((m) => ({ default: m.AgeCalculator })));
@@ -34,6 +34,7 @@ const VatCalculator = lazy(() => import('./components/tools/VatCalculator').then
 const EmiCalculator = lazy(() => import('./components/tools/EmiCalculator').then((m) => ({ default: m.EmiCalculator })));
 const CompoundInterestCalculator = lazy(() => import('./components/tools/CompoundInterestCalculator').then((m) => ({ default: m.CompoundInterestCalculator })));
 const SavedLoans = lazy(() => import('./components/tools/SavedLoans').then((m) => ({ default: m.SavedLoans })));
+const SavedAges = lazy(() => import('./components/tools/SavedAges').then((m) => ({ default: m.SavedAges })));
 const Reminders = lazy(() => import('./components/tools/Reminders').then((m) => ({ default: m.Reminders })));
 const ShoppingLists = lazy(() => import('./components/tools/ShoppingLists').then((m) => ({ default: m.ShoppingLists })));
 
@@ -155,6 +156,7 @@ export default function App() {
     'emi-calculator': t.emiCalculator,
     'compound-interest': t.compoundInterest,
     'saved-loans': t.savedLoans,
+    'saved-ages': t.savedAges,
     'reminders': t.reminders,
     'shopping-list': t.shoppingList,
   };
@@ -176,6 +178,7 @@ export default function App() {
     'emi-calculator',
     'compound-interest',
     'saved-loans',
+    'saved-ages',
     'date-difference',
     'reminders',
     'shopping-list',
@@ -228,6 +231,7 @@ export default function App() {
                 if (tId === 'emi-calculator') shortName = t.emiCalculatorShort;
                 if (tId === 'compound-interest') shortName = t.compoundInterestShort;
                 if (tId === 'saved-loans') shortName = t.savedLoansShort;
+                if (tId === 'saved-ages') shortName = t.savedAgesShort;
                 if (tId === 'date-difference') shortName = t.dateDifferenceShort;
                 if (tId === 'reminders') shortName = t.remindersShort;
                 if (tId === 'shopping-list') shortName = t.shoppingListShort;
@@ -277,7 +281,12 @@ export default function App() {
                 {activeTool === 'nepali-calendar' && <NepaliCalendar language={language} />}
                 {activeTool === 'public-holidays' && <PublicHolidays language={language} />}
                 {activeTool === 'date-converter' && <DateConverter language={language} />}
-                {activeTool === 'age-calculator' && <AgeCalculator language={language} />}
+                {activeTool === 'age-calculator' && (
+                  <AgeCalculator
+                    language={language}
+                    onViewSavedAges={() => handleOpenTool('saved-ages')}
+                  />
+                )}
                 {activeTool === 'salary-tax' && <SalaryTaxCalculator language={language} />}
                 {activeTool === 'gpa-calculator' && <GpaCalculator language={language} />}
                 {activeTool === 'electricity-bill' && <ElectricityBillCalculator language={language} />}
@@ -296,6 +305,7 @@ export default function App() {
                   />
                 )}
                 {activeTool === 'saved-loans' && <SavedLoans language={language} onBack={handleBackToOverview} />}
+                {activeTool === 'saved-ages' && <SavedAges language={language} onBack={handleBackToOverview} />}
                 {activeTool === 'reminders' && <Reminders language={language} onBack={handleBackToOverview} />}
                 {activeTool === 'shopping-list' && <ShoppingLists language={language} onBack={handleBackToOverview} />}
               </Suspense>

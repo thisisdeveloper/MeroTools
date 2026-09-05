@@ -75,6 +75,22 @@ export const TRANSLATIONS = {
     plannedMaturity: 'Planned Maturity',
     deleteLoanConfirm: 'Delete this saved loan? This cannot be undone.',
 
+    savedAges: 'Saved Ages',
+    savedAgesShort: 'Saved Ages',
+    savedAgesDesc: 'Save birthdays for people you care about and see their current age anytime',
+
+    // Saved Ages specific
+    saveAge: 'Save',
+    saveAgeModalTitle: 'Save This Age',
+    ageNameLabel: 'Name',
+    ageNamePlaceholder: 'e.g. Mom, Dad, Me',
+    ageSaved: 'Age saved',
+    noSavedAges: 'No Saved Ages Yet',
+    noSavedAgesDesc: "Save someone's birthday from the Age Calculator to track their age here.",
+    deleteAgeConfirm: 'Delete this saved age? This cannot be undone.',
+    renameAge: 'Rename',
+    renameAgeModalTitle: 'Rename',
+
     goldSilver: 'Gold & Silver',
     goldSilverShort: 'Gold Rates',
     goldSilverDesc: 'Indicative market rates for 24K, 22K Gold and Silver with custom weight calculator',
@@ -315,6 +331,22 @@ export const TRANSLATIONS = {
     statusClosed: 'बन्द भएको',
     plannedMaturity: 'योजनाबद्ध परिपक्वता',
     deleteLoanConfirm: 'यो सुरक्षित ऋण मेटाउने हो? यो फिर्ता गर्न सकिँदैन।',
+
+    savedAges: 'सुरक्षित उमेरहरू',
+    savedAgesShort: 'सुरक्षित उमेर',
+    savedAgesDesc: 'तपाईंलाई मन पर्ने मान्छेहरूको जन्मदिन सुरक्षित गर्नुहोस् र जुनसुकै बेला तिनको हालको उमेर हेर्नुहोस्',
+
+    // Saved Ages specific
+    saveAge: 'सुरक्षित गर्नुहोस्',
+    saveAgeModalTitle: 'यो उमेर सुरक्षित गर्नुहोस्',
+    ageNameLabel: 'नाम',
+    ageNamePlaceholder: 'जस्तै: आमा, बुबा, म',
+    ageSaved: 'उमेर सुरक्षित भयो',
+    noSavedAges: 'अहिलेसम्म कुनै उमेर सुरक्षित छैन',
+    noSavedAgesDesc: 'उमेर क्यालकुलेटरबाट कसैको जन्मदिन सुरक्षित गरी यहाँ उमेर ट्र्याक गर्न सुरु गर्नुहोस्।',
+    deleteAgeConfirm: 'यो सुरक्षित उमेर मेटाउने हो? यो फिर्ता गर्न सकिँदैन।',
+    renameAge: 'नाम बदल्नुहोस्',
+    renameAgeModalTitle: 'नाम बदल्नुहोस्',
 
     goldSilver: 'सुन र चाँदीको दर',
     goldSilverShort: 'सुन चाँदी',
