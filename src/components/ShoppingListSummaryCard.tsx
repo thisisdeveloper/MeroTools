@@ -36,8 +36,6 @@ export const ShoppingListSummaryCard: React.FC<ShoppingListSummaryCardProps> = (
     })
     .filter((x) => x.remaining > 0);
 
-  if (listsWithDetails.length === 0) return null;
-
   const visible = listsWithDetails.slice(0, LIST_ROW_CAP);
   const extra = listsWithDetails.length - visible.length;
 
@@ -58,6 +56,14 @@ export const ShoppingListSummaryCard: React.FC<ShoppingListSummaryCardProps> = (
         </div>
         <ArrowRight className="w-4 h-4 text-emerald-600 shrink-0" />
       </div>
+
+      {listsWithDetails.length === 0 && (
+        <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 px-1">
+          {lists.length === 0
+            ? isNe ? 'अहिलेसम्म कुनै किनमेल सूची छैन।' : "You don't have a shopping list yet."
+            : isNe ? 'सबै किनियो — किन्न बाँकी केही छैन!' : 'All done — nothing left to buy!'}
+        </div>
+      )}
 
       <div className="space-y-2">
         {visible.map(({ list, remaining, total, purchaseDays }) => {

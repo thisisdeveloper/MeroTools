@@ -41,8 +41,7 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
 
   const todayItems = getTodayReminders(reminders, today);
   const upcomingItems = getUpcomingReminders(reminders, today);
-
-  if (todayItems.length === 0 && upcomingItems.length === 0) return null;
+  const isEmpty = todayItems.length === 0 && upcomingItems.length === 0;
 
   const handleComplete = (id: string) => {
     toggleReminderCompleted(id);
@@ -155,6 +154,12 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
         </div>
         <ArrowRight className="w-4 h-4 text-blue-600 shrink-0" />
       </div>
+
+      {isEmpty && (
+        <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 px-1">
+          {isNe ? 'आज वा आउँदा दिनहरूमा कुनै रिमाइन्डर छैन।' : 'No reminders for today or the days ahead.'}
+        </div>
+      )}
 
       {todayItems.length > 0 && (
         <div className="space-y-2">
