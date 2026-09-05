@@ -2,14 +2,15 @@ import React, { useState, useMemo } from 'react';
 import {
   Calendar,
   ChevronRight,
-  ChevronDown,
   Search,
   SlidersHorizontal,
-  Flame,
+  Star,
+  ArrowRight,
 } from 'lucide-react';
 import { ToolId, Language } from '../types';
 import { getTranslation } from '../i18n/translations';
 import { getMostUsedTools } from '../services/toolUsage';
+import { getFavoriteToolIds, toggleFavoriteTool } from '../services/favorites';
 
 interface ToolCardData {
   id: ToolId;
@@ -25,11 +26,13 @@ interface ToolCardData {
 interface ToolsListViewProps {
   language: Language;
   onSelectTool: (toolId: ToolId) => void;
+  viewMode: 'list' | 'card';
 }
 
 export const ToolsListView: React.FC<ToolsListViewProps> = ({
   language,
   onSelectTool,
+  viewMode,
 }) => {
   const isNe = language === 'ne';
   const t = getTranslation(language);
@@ -258,108 +261,148 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
     });
   }, [tools, selectedCategory, searchQuery]);
 
-  const [mostUsedIds] = useState<ToolId[]>(() => getMostUsedTools(4));
-  const mostUsedTools = useMemo(
-    () =>
-      mostUsedIds
-        .map((id) => tools.find((tool) => tool.id === id))
-        .filter((tool): tool is ToolCardData => !!tool),
-    [mostUsedIds, tools]
-  );
+  const [mostUsedIds] = useState<ToolId[]>(() => getMostUsedTools(50));
+  const [favoriteIds, setFavoriteIds] = useState<ToolId[]>(() => getFavoriteToolIds());
 
-  const [isMostUsedCollapsed, setIsMostUsedCollapsed] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('merotools_most_used_collapsed') === '1';
-    } catch {
-      return false;
-    }
-  });
-
-  const toggleMostUsedCollapsed = () => {
-    setIsMostUsedCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('merotools_most_used_collapsed', next ? '1' : '0');
-      } catch {
-        // ignore
-      }
-      return next;
-    });
+  const handleToggleFavorite = (toolId: ToolId) => {
+    setFavoriteIds(toggleFavoriteTool(toolId));
   };
 
-  const renderToolCard = (tool: ToolCardData, idPrefix: string) => (
-    <button
-      key={tool.id}
-      id={`${idPrefix}-${tool.id}`}
-      onClick={() => onSelectTool(tool.id)}
-      className="w-full group p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-red-300 dark:hover:border-slate-700 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex items-center justify-between gap-3"
-    >
-      <div className="flex items-center gap-3.5 min-w-0">
+  // Favorites first, then frequently-used (by usage rank), then everything
+  // else A-Z — one ordered list instead of separate duplicated sections.
+  const sortedTools = useMemo(() => {
+    const mostUsedRank = new Map<ToolId, number>(mostUsedIds.map((id, idx) => [id, idx]));
+
+    return [...filteredTools].sort((a, b) => {
+      const aFav = favoriteIds.includes(a.id);
+      const bFav = favoriteIds.includes(b.id);
+      if (aFav !== bFav) return aFav ? -1 : 1;
+      if (aFav && bFav) return a.title.localeCompare(b.title, isNe ? 'ne' : 'en');
+
+      const aRank = mostUsedRank.has(a.id) ? mostUsedRank.get(a.id)! : Infinity;
+      const bRank = mostUsedRank.has(b.id) ? mostUsedRank.get(b.id)! : Infinity;
+      if (aRank !== bRank) return aRank - bRank;
+
+      return a.title.localeCompare(b.title, isNe ? 'ne' : 'en');
+    });
+  }, [filteredTools, favoriteIds, mostUsedIds, isNe]);
+
+  const gridClass =
+    viewMode === 'card'
+      ? 'grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4'
+      : 'grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4';
+
+  const renderFavoriteButton = (tool: ToolCardData, idPrefix: string, className: string) => {
+    const isFavorite = favoriteIds.includes(tool.id);
+    return (
+      <button
+        id={`${idPrefix}-${tool.id}-favorite-btn`}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleFavorite(tool.id);
+        }}
+        aria-label={isFavorite ? t.removeFromFavorites : t.addToFavorites}
+        title={isFavorite ? t.removeFromFavorites : t.addToFavorites}
+        className={`rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${className}`}
+      >
+        <Star
+          className={`w-4 h-4 transition-colors ${
+            isFavorite
+              ? 'fill-amber-400 text-amber-500'
+              : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-400'
+          }`}
+        />
+      </button>
+    );
+  };
+
+  const renderToolCard = (tool: ToolCardData, idPrefix: string) => {
+    if (viewMode === 'card') {
+      return (
         <div
-          className={`w-12 h-12 rounded-2xl ${tool.iconBg} text-2xl flex items-center justify-center group-hover:scale-105 transition-transform shrink-0 shadow-sm`}
+          key={tool.id}
+          id={`${idPrefix}-${tool.id}`}
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelectTool(tool.id)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') onSelectTool(tool.id);
+          }}
+          className="group bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800/90 shadow-sm hover:shadow-md hover:border-red-200 dark:hover:border-slate-700 cursor-pointer transition-all active:scale-[0.98] flex flex-col justify-between"
         >
-          {tool.icon}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate leading-snug">
+          <div>
+            <div className="flex items-center justify-between mb-2.5 sm:mb-3.5">
+              <div
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl ${tool.iconBg} shadow-sm group-hover:scale-105 transition-transform`}
+              >
+                {tool.icon}
+              </div>
+              {renderFavoriteButton(tool, idPrefix, 'p-1 -m-1')}
+            </div>
+
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors line-clamp-1 leading-snug">
               {tool.title}
             </h3>
-            <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
-              {tool.categoryLabel}
-            </span>
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {tool.desc}
+            </p>
           </div>
-          <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-            {tool.desc}
-          </p>
+
+          <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-red-600 transition-colors">
+            <span>{isNe ? 'खोल्नुहोस्' : 'Open'}</span>
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={tool.id}
+        id={`${idPrefix}-${tool.id}`}
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelectTool(tool.id)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') onSelectTool(tool.id);
+        }}
+        className="w-full group p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-red-300 dark:hover:border-slate-700 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex items-center justify-between gap-3 cursor-pointer"
+      >
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div
+            className={`w-12 h-12 rounded-2xl ${tool.iconBg} text-2xl flex items-center justify-center group-hover:scale-105 transition-transform shrink-0 shadow-sm`}
+          >
+            {tool.icon}
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate leading-snug">
+                {tool.title}
+              </h3>
+              <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
+                {tool.categoryLabel}
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+              {tool.desc}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0">
+          {renderFavoriteButton(tool, idPrefix, 'p-1.5 -m-1.5')}
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all ml-1" />
         </div>
       </div>
-
-      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
-    </button>
-  );
+    );
+  };
 
   return (
     <div id="tools-list-view" className="space-y-5 max-w-4xl mx-auto pb-6">
-      {/* Most Used Tools */}
-      {mostUsedTools.length > 0 && (
-        <div id="most-used-tools-section" className="space-y-4">
-          <div className="px-1 flex items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-1.5">
-                <Flame className="w-4 h-4 text-red-500" />
-                {t.mostUsedTools}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                {t.mostUsedToolsDesc}
-              </p>
-            </div>
-
-            <button
-              id="most-used-collapse-toggle"
-              onClick={toggleMostUsedCollapsed}
-              aria-label={isMostUsedCollapsed ? t.expand : t.collapse}
-              title={isMostUsedCollapsed ? t.expand : t.collapse}
-              className="shrink-0 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-slate-700 transition-all active:scale-95"
-            >
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${isMostUsedCollapsed ? '-rotate-90' : ''}`}
-              />
-            </button>
-          </div>
-
-          {!isMostUsedCollapsed && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {mostUsedTools.map((tool) => renderToolCard(tool, 'most-used-item'))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Header & Search */}
       <div className="space-y-4">
-        <div className="px-1 flex items-center justify-between">
-          <div>
+        <div className="px-1 flex items-center justify-between gap-2">
+          <div className="min-w-0">
             <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">
               {t.everydayTools}
             </h2>
@@ -370,7 +413,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
             </p>
           </div>
 
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200/60 dark:border-red-900">
+          <span className="shrink-0 whitespace-nowrap text-center text-xs font-bold px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200/60 dark:border-red-900">
             {filteredTools.length} {isNe ? 'टूल्स' : 'Tools'}
           </span>
         </div>
@@ -421,9 +464,9 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
         </div>
       </div>
 
-      {/* Tools Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-1">
-        {filteredTools.map((tool) => renderToolCard(tool, 'tools-item'))}
+      {/* Tools Grid — favorites first, then frequently used, then A-Z */}
+      <div className={`${gridClass} pt-1`}>
+        {sortedTools.map((tool) => renderToolCard(tool, 'tools-item'))}
       </div>
 
       {/* Coming Soon Section */}

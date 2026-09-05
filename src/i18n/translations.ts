@@ -220,6 +220,12 @@ export const TRANSLATIONS = {
     mostUsedToolsDesc: 'Your frequently used tools, right at the top',
     expand: 'Expand',
     collapse: 'Collapse',
+
+    // Favorites
+    favorites: 'Favorites',
+    favoritesDesc: 'Tools you’ve pinned for quick access',
+    addToFavorites: 'Add to Favorites',
+    removeFromFavorites: 'Remove from Favorites',
   },
   ne: {
     appName: 'मेरो टूल्स',
@@ -440,6 +446,12 @@ export const TRANSLATIONS = {
     mostUsedToolsDesc: 'तपाईंले प्रायः प्रयोग गर्ने टूल्स, माथि नै',
     expand: 'फैलाउनुहोस्',
     collapse: 'खुम्च्याउनुहोस्',
+
+    // Favorites
+    favorites: 'मनपर्ने',
+    favoritesDesc: 'तपाईंले सजिलो पहुँचको लागि राखेका टूल्स',
+    addToFavorites: 'मनपर्नेमा थप्नुहोस्',
+    removeFromFavorites: 'मनपर्नेबाट हटाउनुहोस्',
   },
 };
 

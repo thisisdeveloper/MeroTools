@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Globe, Sun, Moon } from 'lucide-react';
+import { Sparkles, Globe, Sun, Moon, LayoutGrid, List } from 'lucide-react';
 import { Language, ThemeMode, TabId } from '../types';
 import { getTranslation } from '../i18n/translations';
 import { NepalFlagWave } from './NepalFlagWave';
@@ -11,6 +11,9 @@ interface HeaderProps {
   setLanguage: (lang: Language) => void;
   theme: ThemeMode;
   setTheme: (theme: ThemeMode) => void;
+  showToolsViewToggle?: boolean;
+  toolsViewMode?: 'list' | 'card';
+  onToggleToolsViewMode?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +22,9 @@ export const Header: React.FC<HeaderProps> = ({
   setLanguage,
   theme,
   setTheme,
+  showToolsViewToggle,
+  toolsViewMode,
+  onToggleToolsViewMode,
 }) => {
   const t = getTranslation(language);
 
@@ -66,6 +72,31 @@ export const Header: React.FC<HeaderProps> = ({
             <Globe className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 flex-shrink-0" />
             <span className="whitespace-nowrap">{language === 'en' ? 'नेपाली' : 'English'}</span>
           </button>
+
+          {/* Tools View Mode Toggle — single icon showing the mode you'd switch to */}
+          {showToolsViewToggle && onToggleToolsViewMode && (
+            <button
+              id="header-tools-view-toggle-btn"
+              onClick={onToggleToolsViewMode}
+              className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full transition-colors flex-shrink-0"
+              aria-label={
+                toolsViewMode === 'list'
+                  ? language === 'ne' ? 'कार्ड दृश्यमा जानुहोस्' : 'Switch to card view'
+                  : language === 'ne' ? 'सूची दृश्यमा जानुहोस्' : 'Switch to list view'
+              }
+              title={
+                toolsViewMode === 'list'
+                  ? language === 'ne' ? 'कार्ड दृश्य' : 'Card view'
+                  : language === 'ne' ? 'सूची दृश्य' : 'List view'
+              }
+            >
+              {toolsViewMode === 'list' ? (
+                <LayoutGrid className="w-4 h-4" />
+              ) : (
+                <List className="w-4 h-4" />
+              )}
+            </button>
+          )}
 
           {/* Theme Quick Toggle */}
           <button

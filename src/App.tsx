@@ -51,8 +51,26 @@ export default function App() {
       const saved = localStorage.getItem('merotools_theme');
       if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
     } catch {}
-    return 'system';
+    return 'dark';
   });
+
+  const [toolsViewMode, setToolsViewMode] = useState<'list' | 'card'>(() => {
+    try {
+      return localStorage.getItem('merotools_tools_view_mode') === 'card' ? 'card' : 'list';
+    } catch {
+      return 'list';
+    }
+  });
+
+  const toggleToolsViewMode = () => {
+    setToolsViewMode((prev) => {
+      const next = prev === 'list' ? 'card' : 'list';
+      try {
+        localStorage.setItem('merotools_tools_view_mode', next);
+      } catch {}
+      return next;
+    });
+  };
 
   // Save Settings
   useEffect(() => {
@@ -144,6 +162,9 @@ export default function App() {
         setLanguage={setLanguage}
         theme={theme}
         setTheme={setTheme}
+        showToolsViewToggle={currentTab === 'tools' && !activeTool}
+        toolsViewMode={toolsViewMode}
+        onToggleToolsViewMode={toggleToolsViewMode}
       />
 
       {/* Main Content Area */}
@@ -248,6 +269,7 @@ export default function App() {
               <ToolsListView
                 language={language}
                 onSelectTool={handleOpenTool}
+                viewMode={toolsViewMode}
               />
             )}
 
