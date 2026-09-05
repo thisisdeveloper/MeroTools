@@ -3,7 +3,7 @@ import { ShieldCheck, Globe } from 'lucide-react';
 import { NepalFlagWave } from './NepalFlagWave';
 import { Language } from '../types';
 
-const EFFECTIVE_DATE = 'August 24, 2026';
+const EFFECTIVE_DATE = 'September 6, 2026';
 const CONTACT_EMAIL = 'ysunilkumar2030@gmail.com';
 
 export const PrivacyPolicyPage: React.FC = () => {
@@ -78,25 +78,40 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <li>खाता वा लगइन प्रणाली (कुनै पनि छैन)</li>
                 <li>तपाईंले क्यालकुलेटरमा हालेको रकम, जन्म मिति, तलब, वा अन्य निजी अंकहरू — यी सबै तपाईंको यन्त्रबाहिर कहिल्यै पठाइँदैन</li>
                 <li>विज्ञापन ट्र्याकिङ, एनालिटिक्स SDK, वा व्यवहार अनुगमन उपकरणहरू</li>
-                <li>क्यामेरा, माइक्रोफोन, कन्ट्याक्ट, वा स्थान (location) पहुँच</li>
+                <li>क्यामेरा, माइक्रोफोन, वा कन्ट्याक्ट पहुँच</li>
               </ul>
             </Section>
 
             <Section title="यन्त्रमै भण्डारण हुने जानकारी">
               <p>
-                एपले तपाईंको भाषा र रङ्ग (Theme) प्राथमिकता, र विदेशी मुद्रा/सुनचाँदी दरको क्यास (कपी) मात्र तपाईंको यन्त्रको लोकल स्टोरेजमा राख्छ। यो डेटा कुनै सर्भरमा पठाइँदैन र कहिल्यै हामीसँग पुग्दैन। एप मेटाउँदा वा डेटा क्लियर गर्दा यो स्वतः हट्छ।
+                एपले तपाईंको भाषा र रङ्ग (Theme) प्राथमिकता, विदेशी मुद्रा/सुनचाँदी दरको क्यास (कपी), र तपाईंले Reminders वा Shopping List प्रयोग गर्नुभयो भने तपाईंले बनाएका रिमाइन्डर, किनमेल सूची, र Location Reminder का विवरणहरू — यी सबै तपाईंको यन्त्रको लोकल स्टोरेजमा मात्र राख्छ। यो डेटा कुनै सर्भरमा पठाइँदैन र कहिल्यै हामीसँग पुग्दैन। एप मेटाउँदा वा डेटा क्लियर गर्दा यो स्वतः हट्छ।
               </p>
+            </Section>
+
+            <Section title="Location Reminder (ऐच्छिक)">
+              <p>
+                Reminders मा एउटा ऐच्छिक Location प्रकार छ, जसले तपाईं कुनै छानिएको ठाउँमा पुग्दा वा त्यहाँबाट निस्कँदा सूचित गर्छ। तपाईंले Location Reminder थप्नुभयो भने मात्र यो सुविधा सक्रिय हुन्छ — एपले अन्यथा वा एप खोल्दा नै तपाईंको स्थान कहिल्यै पहुँच गर्दैन।
+              </p>
+              <ul className="list-disc pl-5 space-y-1.5 mt-2">
+                <li>एपले पहिले "प्रयोग गर्दा मात्र" (While Using) स्थान अनुमति माग्छ, त्यसपछि छुट्टै रूपमा "सधैं" (Always) अनुमतिमा अपग्रेड गर्न माग्छ — किनभने एप बन्द भएको बेला पनि रिमाइन्डरले सूचित गर्न सकोस् भन्नका लागि यो आवश्यक हुन्छ। तपाईं कुनै पनि अनुरोध अस्वीकार गर्न सक्नुहुन्छ; त्यसो गर्नुभयो भने यो सुविधा मात्र काम गर्दैन।</li>
+                <li>तपाईंले बचत गर्नुभएका Location Reminder हरू (ठाउँ, दायरा, र आइपुग्ने/छोड्ने सेटिङ) अरू सबै रिमाइन्डर जस्तै तपाईंको यन्त्रको लोकल स्टोरेजमा मात्र राखिन्छन्। हामी यो डेटा कुनै सर्भरमा प्राप्त, हेर्न, वा भण्डारण गर्दैनौं।</li>
+                <li>रिमाइन्डर ट्रिगर आफैं पूर्ण रूपमा iOS/Android को on-device स्थान सेवाद्वारा हुन्छ — यसका लागि तपाईंको वास्तविक-समयको स्थान हामी वा कुनै तेस्रो-पक्षलाई कहिल्यै पठाइँदैन।</li>
+                <li>ठाउँ खोज्दा, वा खोजाइले फेला नपारेमा नक्सामा पिन थोपार्दा, तपाईंको खोज पाठ वा पिनको निर्देशांक (coordinates) हाम्रो ब्याकइन्डमा पठाइन्छ, जसले Google Places वा OpenStreetMap लाई अनुरोध पठाउँछ (तल "तेस्रो-पक्ष स्रोतहरू" हेर्नुहोस्) — यो केवल तपाईंले सक्रिय रूपमा खोज्दा वा पिन थोपार्दा मात्र हुन्छ, र परिणामहरू कुनै व्यक्तिगत परिचयसँग जोडिँदैनन् वा पछि हामीले भण्डारण गर्दैनौं।</li>
+              </ul>
             </Section>
 
             <Section title="तेस्रो-पक्ष स्रोतहरू">
               <p>
                 विदेशी मुद्रा (Forex) टूल खोल्दा, तपाईंको यन्त्रले सिधै <strong>नेपाल राष्ट्र बैंक (NRB)</strong> को सार्वजनिक API बाट ताजा दर लिन्छ। यो सिधा सम्पर्कमा तपाईंको यन्त्रको सामान्य नेटवर्क जानकारी (जस्तै IP ठेगाना) NRB लाई देखिन सक्छ, जुन तिनको आफ्नै नीति अनुसार हुन्छ — हामीसँग यो जानकारीमा कुनै पहुँच वा भण्डारण छैन। यदि यो अनुरोध असफल भयो भने, एपले पहिले नै भण्डारण गरिएको वा पूर्वनिर्धारित दर देखाउँछ।
               </p>
+              <p className="mt-2">
+                Location Reminder मा ठाउँ खोज्दा वा पिन थोपार्दा, तपाईंको यन्त्रले खोज पाठ वा पिनको निर्देशांक हाम्रो ब्याकइन्डमा पठाउँछ, जसले मिल्दोजुल्दो परिणाम फेला पार्न <strong>Google Places</strong> र/वा <strong>OpenStreetMap को Nominatim</strong> सेवामा अनुरोध गर्छ, अनि परिणाम एपमा फिर्ता ल्याउँछ। यी सेवा प्रदायकहरूलाई तिनको आफ्नै नीति अनुसार सामान्य नेटवर्क जानकारी देखिन सक्छ। अनुरोध पूरा गर्न र दुरुपयोग रोक्न छोटो-अवधिको दर-सीमा लगाउनुबाहेक, हामी यी खोजहरू लग वा भण्डारण गर्दैनौं।
+              </p>
             </Section>
 
             <Section title="अनुमतिहरू (Permissions)">
               <p>
-                एन्ड्रोइड संस्करणले केवल <strong>इन्टरनेट</strong> अनुमति माग्छ — सार्वजनिक दर जानकारी ल्याउनका लागि मात्र। अरू कुनै संवेदनशील अनुमति (क्यामेरा, माइक्रोफोन, स्थान, कन्ट्याक्ट) माग्दैन।
+                एन्ड्रोइड संस्करणले सार्वजनिक दर जानकारी र ठाउँ खोज सुविधाका लागि <strong>इन्टरनेट</strong> अनुमति माग्छ। तपाईंले Location Reminder प्रयोग गर्नुभयो भने, यसले थप <strong>स्थान</strong> (foreground र background) र <strong>notification</strong> अनुमति पनि माग्छ — यो अनुमति तपाईंले Location Reminder थप्दा मात्र माग्छ, एप खोल्दा कहिल्यै होइन, र अरू कुनै सुविधाका लागि पनि होइन। एपले क्यामेरा, माइक्रोफोन, वा कन्ट्याक्ट पहुँच माग्दैन।
               </p>
             </Section>
 
@@ -128,25 +143,40 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <li>Accounts or logins — there are none</li>
                 <li>Values you enter into calculators (amounts, birth dates, salary figures, etc.) — these never leave your device</li>
                 <li>Advertising trackers, analytics SDKs, or behavioral monitoring</li>
-                <li>Camera, microphone, contacts, or location access</li>
+                <li>Camera, microphone, or contacts access</li>
               </ul>
             </Section>
 
             <Section title="Information Stored On Your Device">
               <p>
-                The app stores your language and theme preference, plus a cached copy of foreign-exchange and gold/silver rates, in your device's local storage only. This data is never transmitted to us or any server we control. Uninstalling the app or clearing its data removes it completely.
+                The app stores your language and theme preference, a cached copy of foreign-exchange and gold/silver rates, and — if you use Reminders or the Shopping List — the reminders, shopping lists, and Location Reminder details you create, all in your device's local storage only. This data is never transmitted to us or any server we control. Uninstalling the app or clearing its data removes it completely.
               </p>
+            </Section>
+
+            <Section title="Location Reminders (Optional)">
+              <p>
+                Reminders includes an optional Location type that notifies you on arriving at or leaving a place you choose. This feature only activates if you add a location reminder — the app never accesses your location otherwise, and never on app launch.
+              </p>
+              <ul className="list-disc pl-5 space-y-1.5 mt-2">
+                <li>The app asks for "While Using" location access first, then separately asks to upgrade to "Always" access — needed so the reminder can still notify you when the app isn't open. You can decline either prompt; the feature simply won't work without it.</li>
+                <li>Your saved location reminders (the place, radius, and arrive/leave setting) are stored only in your device's local storage, matching every other reminder type. We do not receive, see, or store this data on any server.</li>
+                <li>The reminder trigger itself is handled entirely by iOS/Android's on-device location services — your real-time location is never sent to us or to any third party for this purpose.</li>
+                <li>Searching for a place, or dropping a pin on the in-app map when search doesn't find it, does send your search text or the pin's coordinates to our backend, which forwards the request to Google Places or OpenStreetMap (see "Third-Party Sources" below) purely to return matching places or a place name — this happens only when you actively search or drop a pin, and results aren't linked to any personal identifier or stored by us afterward.</li>
+              </ul>
             </Section>
 
             <Section title="Third-Party Sources">
               <p>
                 When you open the Forex tool, your device contacts <strong>Nepal Rastra Bank (NRB)</strong>'s public rate API directly to fetch current exchange rates. As with any direct network request, standard connection metadata (such as your IP address) may be visible to NRB under their own policies — we have no access to or storage of this information ourselves. If that request fails, the app falls back to a previously cached or default rate.
               </p>
+              <p className="mt-2">
+                When you search for a place or drop a pin in Location Reminders, your device sends the search text or pinned coordinates to our backend, which queries <strong>Google Places</strong> and/or <strong>OpenStreetMap's Nominatim</strong> service to find matching results, and returns them to the app. Standard connection metadata may be visible to those providers under their own policies. We do not log or retain these queries beyond what's needed to serve the request and apply a short-lived rate limit against abuse.
+              </p>
             </Section>
 
             <Section title="Permissions">
               <p>
-                The Android app requests only the <strong>Internet</strong> permission, used solely to fetch public rate data. It does not request camera, microphone, location, or contacts access.
+                The Android app requests the <strong>Internet</strong> permission to fetch public rate data and power place search. If you use Location Reminders, it additionally requests <strong>location</strong> (foreground and background) and <strong>notification</strong> permissions, each requested only when you add a location reminder — never on app launch, and never for any other feature. The app does not request camera, microphone, or contacts access.
               </p>
             </Section>
 
