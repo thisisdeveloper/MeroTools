@@ -295,7 +295,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
               <button onClick={() => handleToggleItem(item.id)} aria-label={isNe ? 'खरिद चिन्ह लगाउनुहोस्' : 'Mark purchased'}>
                 <CheckCircle2
                   className={`w-5 h-5 ${
-                    item.isPurchased ? 'fill-emerald-500 text-emerald-500' : 'text-slate-300 dark:text-slate-600'
+                    item.isPurchased ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'
                   }`}
                 />
               </button>

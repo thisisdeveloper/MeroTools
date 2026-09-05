@@ -2,10 +2,6 @@ import React, { useMemo, useState } from 'react';
 import {
   Bell,
   CheckCircle2,
-  Cake,
-  Heart,
-  Receipt,
-  ListTodo,
   Pencil,
   Plus,
   Trash2,
@@ -23,18 +19,9 @@ import {
   toggleReminderCompleted,
   getDaysUntil,
 } from '../../services/reminders';
+import { formatTime12h } from '../../calculations/reminderOccurrence';
 import { AdDatePicker } from '../AdDatePicker';
-
-function formatTime12h(time: string, isNe: boolean): string {
-  const [hStr, mStr] = time.split(':');
-  const h = Number(hStr);
-  const m = Number(mStr);
-  const period = h >= 12 ? (isNe ? 'बे.' : 'PM') : isNe ? 'बि.' : 'AM';
-  const h12 = h % 12 === 0 ? 12 : h % 12;
-  const hDisplay = isNe ? toNepaliDigits(h12) : String(h12);
-  const mDisplay = isNe ? toNepaliDigits(m).padStart(2, toNepaliDigits(0)) : String(m).padStart(2, '0');
-  return `${hDisplay}:${mDisplay} ${period}`;
-}
+import { TYPE_META } from '../../data/reminderTypeMeta';
 
 interface RemindersProps {
   language: Language;
@@ -42,55 +29,7 @@ interface RemindersProps {
 
 type FilterType = 'today' | 'missed' | 'upcoming' | 'completed' | 'all';
 
-const TYPE_META: Record<
-  Extract<ReminderType, 'task' | 'birthday' | 'anniversary' | 'bill'>,
-  {
-    icon: React.FC<{ className?: string }>;
-    iconBg: string;
-    defaultRepeat: RepeatMode;
-    labelEn: string;
-    labelNe: string;
-    placeholderEn: string;
-    placeholderNe: string;
-  }
-> = {
-  task: {
-    icon: ListTodo,
-    iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
-    defaultRepeat: 'none',
-    labelEn: 'Task',
-    labelNe: 'कार्य',
-    placeholderEn: 'e.g. Pay electricity bill',
-    placeholderNe: 'जस्तै: बिजुली बिल तिर्ने',
-  },
-  birthday: {
-    icon: Cake,
-    iconBg: 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400',
-    defaultRepeat: 'yearly',
-    labelEn: 'Birthday',
-    labelNe: 'जन्मदिन',
-    placeholderEn: "e.g. Rahul's Birthday",
-    placeholderNe: 'जस्तै: राहुलको जन्मदिन',
-  },
-  anniversary: {
-    icon: Heart,
-    iconBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400',
-    defaultRepeat: 'yearly',
-    labelEn: 'Anniversary',
-    labelNe: 'वार्षिकोत्सव',
-    placeholderEn: 'e.g. Wedding Anniversary',
-    placeholderNe: 'जस्तै: विवाह वार्षिकोत्सव',
-  },
-  bill: {
-    icon: Receipt,
-    iconBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400',
-    defaultRepeat: 'monthly',
-    labelEn: 'Bill',
-    labelNe: 'बिल',
-    placeholderEn: 'e.g. Internet Bill',
-    placeholderNe: 'जस्तै: इन्टरनेट बिल',
-  },
-};
+const TITLE_MAX_LENGTH = 30;
 
 function todayAd(): ADDate {
   return getTodayDate().ad;
@@ -187,7 +126,16 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
         .map((r) => ({ reminder: r, days: null as number | null }));
     }
     if (filter === 'all') {
-      return reminders.map((r) => ({ reminder: r, days: getDaysUntil(r, today) }));
+      // Chronological: overdue/today/tomorrow/later by day-count ascending,
+      // with completed one-time reminders (no date left to sort by) at the end.
+      return reminders
+        .map((r) => ({ reminder: r, days: getDaysUntil(r, today) }))
+        .sort((a, b) => {
+          if (a.days === null && b.days === null) return 0;
+          if (a.days === null) return 1;
+          if (b.days === null) return -1;
+          return a.days - b.days;
+        });
     }
     if (filter === 'today') {
       return withDays.filter((x) => x.days === 0);
@@ -217,6 +165,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
   );
 
   const filters: { id: FilterType; label: string }[] = [
+    { id: 'all', label: isNe ? 'सबै' : 'All' },
     { id: 'today', label: isNe ? 'आज' : 'Today' },
     {
       id: 'missed',
@@ -231,7 +180,6 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
     },
     { id: 'upcoming', label: isNe ? 'आगामी' : 'Upcoming' },
     { id: 'completed', label: isNe ? 'सम्पन्न' : 'Completed' },
-    { id: 'all', label: isNe ? 'सबै' : 'All' },
   ];
 
   const emptyMessage: Record<FilterType, string> = {
@@ -324,7 +272,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
                   >
                     <CheckCircle2
                       className={`w-5 h-5 ${
-                        reminder.isCompleted ? 'fill-emerald-500 text-emerald-500' : 'text-slate-300 dark:text-slate-600'
+                        reminder.isCompleted ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'
                       }`}
                     />
                   </button>
@@ -463,14 +411,20 @@ export const Reminders: React.FC<RemindersProps> = ({ language }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                {isNe ? 'शीर्षक' : 'Title'}
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  {isNe ? 'शीर्षक' : 'Title'}
+                </label>
+                <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                  {formTitle.length}/{TITLE_MAX_LENGTH}
+                </span>
+              </div>
               <input
                 id="reminder-title-input"
                 type="text"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
+                maxLength={TITLE_MAX_LENGTH}
                 placeholder={isNe ? TYPE_META[formType].placeholderNe : TYPE_META[formType].placeholderEn}
                 className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
               />

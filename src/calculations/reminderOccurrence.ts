@@ -1,4 +1,5 @@
 import { ADDate, ReminderRecord } from '../types';
+import { toNepaliDigits } from '../calendar/bsCalendar';
 
 const MS_PER_DAY = 86400000;
 
@@ -74,4 +75,17 @@ export function getDaysUntil(reminder: ReminderRecord, today: ADDate): number | 
   const next = getNextOccurrence(reminder, today);
   if (!next) return null;
   return toEpochDayCount(next) - toEpochDayCount(today);
+}
+
+// Formats a stored "HH:MM" (24h) reminder time as a localized 12-hour
+// string, e.g. "2:30 PM" / "२:३० बे.".
+export function formatTime12h(time: string, isNe: boolean): string {
+  const [hStr, mStr] = time.split(':');
+  const h = Number(hStr);
+  const m = Number(mStr);
+  const period = h >= 12 ? (isNe ? 'बे.' : 'PM') : isNe ? 'बि.' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const hDisplay = isNe ? toNepaliDigits(h12) : String(h12);
+  const mDisplay = isNe ? toNepaliDigits(m).padStart(2, toNepaliDigits(0)) : String(m).padStart(2, '0');
+  return `${hDisplay}:${mDisplay} ${period}`;
 }

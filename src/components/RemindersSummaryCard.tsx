@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, ArrowRight, CheckCircle2, Trash2 } from 'lucide-react';
+import { Bell, ArrowRight, CheckCircle2, Trash2, AlertTriangle } from 'lucide-react';
 import { ToolId, Language, ReminderRecord } from '../types';
 import { getTodayDate, toNepaliDigits } from '../calendar/bsCalendar';
 import { getTranslation } from '../i18n/translations';
@@ -11,6 +11,8 @@ import {
   toggleReminderCompleted,
   deleteReminder,
 } from '../services/reminders';
+import { TYPE_META } from '../data/reminderTypeMeta';
+import { formatTime12h } from '../calculations/reminderOccurrence';
 import { SwipeableRow } from './SwipeableRow';
 
 interface RemindersSummaryCardProps {
@@ -21,10 +23,11 @@ interface RemindersSummaryCardProps {
 function dayLabel(days: number, isNe: boolean): string {
   if (days === 0) return isNe ? 'आज' : 'Today';
   if (days === 1) return isNe ? 'भोलि' : 'Tomorrow';
-  return isNe ? `${toNepaliDigits(days)} दिनमा` : `in ${days} days`;
+  return isNe ? `${toNepaliDigits(days)} दिनमा` : `In ${days} days`;
 }
 
 const TODAY_ROW_CAP = 3;
+const UPCOMING_ROW_CAP = 3;
 
 export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ language, onSelectTool }) => {
   const t = getTranslation(language);
@@ -38,9 +41,8 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
 
   const todayItems = getTodayReminders(reminders, today);
   const upcomingItems = getUpcomingReminders(reminders, today);
-  const nextUp = upcomingItems[0] ?? null;
 
-  if (todayItems.length === 0 && !nextUp) return null;
+  if (todayItems.length === 0 && upcomingItems.length === 0) return null;
 
   const handleComplete = (id: string) => {
     toggleReminderCompleted(id);
@@ -54,13 +56,19 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
   };
 
   const renderRow = (reminder: ReminderRecord, days: number) => {
+    const meta = TYPE_META[reminder.type as keyof typeof TYPE_META] || TYPE_META.task;
+    const Icon = meta.icon;
+
     if (confirmDeleteId === reminder.id) {
       return (
         <div
           key={reminder.id}
-          className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-2xl bg-white dark:bg-slate-900"
+          className="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-white dark:bg-slate-900"
         >
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+            <AlertTriangle className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate flex-1">
             {isNe ? 'मेटाउने?' : 'Delete this?'}
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -103,11 +111,26 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
           onTrigger: () => setConfirmDeleteId(reminder.id),
         }}
       >
-        <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-2xl bg-white dark:bg-slate-900">
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{reminder.title}</span>
-          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 shrink-0">
-            {dayLabel(days, isNe)}
-          </span>
+        <div className="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-white dark:bg-slate-900">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${meta.iconBg}`}>
+            <Icon className="w-4 h-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+              {reminder.title}
+            </div>
+            {reminder.notes && (
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                {reminder.notes}
+              </div>
+            )}
+            <div className={`text-sm font-extrabold truncate ${meta.accentText}`}>
+              {dayLabel(days, isNe)}
+              {reminder.time && (
+                <span className="font-semibold"> · {formatTime12h(reminder.time, isNe)}</span>
+              )}
+            </div>
+          </div>
         </div>
       </SwipeableRow>
     );
@@ -134,7 +157,7 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
       </div>
 
       {todayItems.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {todayItems.slice(0, TODAY_ROW_CAP).map((r) => renderRow(r, 0))}
           {todayItems.length > TODAY_ROW_CAP && (
             <div className="text-[11px] text-slate-500 dark:text-slate-400 px-1">
@@ -144,14 +167,19 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
         </div>
       )}
 
-      {nextUp && (
-        <div className="space-y-1">
-          {todayItems.length > 0 && (
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-              {isNe ? 'आगामी' : 'Next up'}
+      {upcomingItems.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            {isNe ? 'आगामी' : 'Upcoming'}
+          </div>
+          {upcomingItems.slice(0, UPCOMING_ROW_CAP).map((r) => renderRow(r, getDaysUntil(r, today) ?? 0))}
+          {upcomingItems.length > UPCOMING_ROW_CAP && (
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 px-1">
+              {isNe
+                ? `+${toNepaliDigits(upcomingItems.length - UPCOMING_ROW_CAP)} थप`
+                : `+${upcomingItems.length - UPCOMING_ROW_CAP} more`}
             </div>
           )}
-          {renderRow(nextUp, getDaysUntil(nextUp, today) ?? 0)}
         </div>
       )}
     </div>
