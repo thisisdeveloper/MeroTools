@@ -15,6 +15,7 @@ import {
   Bell,
   ListChecks,
   RotateCcw,
+  Cake,
 } from 'lucide-react';
 import { HomeCardId, Language, ThemeMode } from '../types';
 import { getTranslation } from '../i18n/translations';
@@ -45,6 +46,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     { id: 'upcomingEvent', label: t.homeCardUpcomingEvent, icon: CalendarClock },
     { id: 'reminders', label: t.homeCardReminders, icon: Bell },
     { id: 'shoppingList', label: t.homeCardShoppingList, icon: ListChecks },
+    { id: 'savedAges', label: t.homeCardSavedAges, icon: Cake },
   ];
 
   const handleToggleHomeCard = (id: HomeCardId, enabled: boolean) => {

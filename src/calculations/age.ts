@@ -110,3 +110,26 @@ export function getDaysSinceLastBirthday(dobAd: ADDate, targetDateAd?: ADDate): 
 
   return Math.floor((target.getTime() - lastBirthday.getTime()) / (24 * 60 * 60 * 1000));
 }
+
+// Total days until the next birthday anniversary (0 if today is the
+// birthday) — a precise day-count counterpart to AgeResult's
+// nextBirthdayInMonths/nextBirthdayInDays, which are broken into a
+// human-readable "X months Y days" and awkward to use for a simple
+// "is this within N days" window check.
+export function getDaysUntilNextBirthday(dobAd: ADDate, targetDateAd?: ADDate): number {
+  const target = targetDateAd
+    ? new Date(Date.UTC(targetDateAd.year, targetDateAd.month - 1, targetDateAd.day))
+    : (() => {
+        const now = new Date();
+        return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+      })();
+
+  let nextBirthdayYear = target.getUTCFullYear();
+  let nextBirthday = new Date(Date.UTC(nextBirthdayYear, dobAd.month - 1, dobAd.day));
+  if (nextBirthday.getTime() < target.getTime()) {
+    nextBirthdayYear += 1;
+    nextBirthday = new Date(Date.UTC(nextBirthdayYear, dobAd.month - 1, dobAd.day));
+  }
+
+  return Math.floor((nextBirthday.getTime() - target.getTime()) / (24 * 60 * 60 * 1000));
+}

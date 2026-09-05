@@ -4,6 +4,7 @@ import { TodayDateCard } from './TodayDateCard';
 import { UpcomingEventCard } from './UpcomingEventCard';
 import { RemindersSummaryCard } from './RemindersSummaryCard';
 import { ShoppingListSummaryCard } from './ShoppingListSummaryCard';
+import { SavedAgesSummaryCard } from './SavedAgesSummaryCard';
 import { ToolId, Language } from '../types';
 import { getTranslation } from '../i18n/translations';
 import { getCachedForexData, formatNepaliCurrency } from '../services/forex';
@@ -46,6 +47,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 2b. Reminders & Shopping List summaries */}
       {homeSettings.reminders && <RemindersSummaryCard language={language} onSelectTool={onSelectTool} />}
       {homeSettings.shoppingList && <ShoppingListSummaryCard language={language} onSelectTool={onSelectTool} />}
+      {homeSettings.savedAges && <SavedAgesSummaryCard language={language} onSelectTool={onSelectTool} />}
 
       {/* 2c. Gold & Silver Rate Banner (independent of Forex) */}
       {homeSettings.gold && metals && (

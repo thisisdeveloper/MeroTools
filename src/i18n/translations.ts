@@ -257,6 +257,7 @@ export const TRANSLATIONS = {
     homeCardUpcomingEvent: 'Upcoming Events',
     homeCardReminders: 'Reminders',
     homeCardShoppingList: 'Shopping List',
+    homeCardSavedAges: 'Birthdays',
   },
   ne: {
     appName: 'मेरो टूल्स',
@@ -514,6 +515,7 @@ export const TRANSLATIONS = {
     homeCardUpcomingEvent: 'आगामी घटनाहरू',
     homeCardReminders: 'रिमाइन्डरहरू',
     homeCardShoppingList: 'किनमेल सूची',
+    homeCardSavedAges: 'जन्मदिनहरू',
   },
 };
 

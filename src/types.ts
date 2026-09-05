@@ -247,7 +247,7 @@ export interface AppSettings {
 
 // ---- Home page customization ----
 
-export type HomeCardId = 'date' | 'forex' | 'gold' | 'upcomingEvent' | 'reminders' | 'shoppingList';
+export type HomeCardId = 'date' | 'forex' | 'gold' | 'upcomingEvent' | 'reminders' | 'shoppingList' | 'savedAges';
 
 export type HomeSettings = Record<HomeCardId, boolean>;
 

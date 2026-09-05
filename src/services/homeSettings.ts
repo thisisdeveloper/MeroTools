@@ -9,6 +9,7 @@ export const DEFAULT_HOME_SETTINGS: HomeSettings = {
   upcomingEvent: true,
   reminders: true,
   shoppingList: true,
+  savedAges: true,
 };
 
 export function getHomeSettings(): HomeSettings {
