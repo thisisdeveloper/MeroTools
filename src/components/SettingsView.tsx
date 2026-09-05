@@ -8,9 +8,18 @@ import {
   Building,
   Check,
   FileText,
+  CalendarDays,
+  Landmark,
+  Coins,
+  CalendarClock,
+  Bell,
+  ListChecks,
+  RotateCcw,
 } from 'lucide-react';
-import { Language, ThemeMode } from '../types';
+import { HomeCardId, Language, ThemeMode } from '../types';
 import { getTranslation } from '../i18n/translations';
+import { getHomeSettings, setHomeCardEnabled, resetHomeSettings } from '../services/homeSettings';
+import { ToggleSwitch } from './ToggleSwitch';
 
 interface SettingsViewProps {
   language: Language;
@@ -27,6 +36,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
   const t = getTranslation(language);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  const [homeSettings, setHomeSettingsState] = useState(() => getHomeSettings());
+
+  const homeCards: { id: HomeCardId; label: string; icon: React.FC<{ className?: string }> }[] = [
+    { id: 'date', label: t.homeCardDate, icon: CalendarDays },
+    { id: 'forex', label: t.homeCardForex, icon: Landmark },
+    { id: 'gold', label: t.homeCardGold, icon: Coins },
+    { id: 'upcomingEvent', label: t.homeCardUpcomingEvent, icon: CalendarClock },
+    { id: 'reminders', label: t.homeCardReminders, icon: Bell },
+    { id: 'shoppingList', label: t.homeCardShoppingList, icon: ListChecks },
+  ];
+
+  const handleToggleHomeCard = (id: HomeCardId, enabled: boolean) => {
+    setHomeSettingsState(setHomeCardEnabled(id, enabled));
+  };
+
+  const handleResetHomeSettings = () => {
+    setHomeSettingsState(resetHomeSettings());
+  };
 
   const openPrivacyPolicy = () => {
     window.location.hash = 'privacy';
@@ -136,6 +163,46 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             {language === 'ne' && <Check className="w-4 h-4 text-red-600" />}
           </button>
+        </div>
+      </div>
+
+      {/* Home Page Items Section */}
+      <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+              {t.homePageItems}
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{t.homePageItemsDesc}</p>
+          </div>
+          <button
+            id="reset-home-settings-btn"
+            onClick={handleResetHomeSettings}
+            className="flex items-center gap-1 text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0"
+          >
+            <RotateCcw className="w-3 h-3" />
+            {t.resetToDefault}
+          </button>
+        </div>
+
+        <div className="space-y-1">
+          {homeCards.map(({ id, label, icon: Icon }) => (
+            <div
+              key={id}
+              className="flex items-center justify-between py-2.5 border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+            >
+              <div className="flex items-center gap-2.5">
+                <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
+              </div>
+              <ToggleSwitch
+                id={`home-toggle-${id}`}
+                checked={homeSettings[id]}
+                onChange={(checked) => handleToggleHomeCard(id, checked)}
+                ariaLabel={label}
+              />
+            </div>
+          ))}
         </div>
       </div>
 

@@ -212,8 +212,6 @@ export const TRANSLATIONS = {
     comingSoonSectionDesc: 'Productivity features we’re building next',
     locationRemindersTitle: 'Location Reminders',
     locationRemindersDesc: 'Get reminded about tasks when you arrive at a specific location.',
-    smartTaskRemindersTitle: 'Smart Task Reminders',
-    smartTaskRemindersDesc: 'Create reminders for tasks and important things.',
 
     // Most Used Tools
     mostUsedTools: 'Most Used',
@@ -226,6 +224,29 @@ export const TRANSLATIONS = {
     favoritesDesc: 'Tools you’ve pinned for quick access',
     addToFavorites: 'Add to Favorites',
     removeFromFavorites: 'Remove from Favorites',
+
+    // Reminders
+    reminders: 'Reminders',
+    remindersShort: 'Reminders',
+    remindersDesc: 'Task, birthday, anniversary and bill reminders that work fully offline',
+
+    // Shopping List
+    shoppingList: 'Shopping List',
+    shoppingListShort: 'Shopping List',
+    shoppingListDesc: 'Create shopping lists with item, quantity, and optional price',
+
+    edit: 'Edit',
+
+    // Home Page Settings
+    homePageItems: 'Home Page Items',
+    homePageItemsDesc: 'Choose what shows up on your Home page',
+    resetToDefault: 'Reset to Default',
+    homeCardDate: "Today's Date",
+    homeCardForex: 'Nepal Forex Rates',
+    homeCardGold: 'Gold & Silver Rates',
+    homeCardUpcomingEvent: 'Upcoming Events',
+    homeCardReminders: 'Reminders',
+    homeCardShoppingList: 'Shopping List',
   },
   ne: {
     appName: 'मेरो टूल्स',
@@ -438,8 +459,6 @@ export const TRANSLATIONS = {
     comingSoonSectionDesc: 'हामी अब निर्माण गर्दै गरेका उत्पादकत्व सुविधाहरू',
     locationRemindersTitle: 'स्थान रिमाइन्डर',
     locationRemindersDesc: 'तपाईं कुनै विशेष स्थानमा पुग्दा त्यहाँका कार्यहरूको सम्झना गराइनेछ।',
-    smartTaskRemindersTitle: 'स्मार्ट कार्य रिमाइन्डर',
-    smartTaskRemindersDesc: 'कार्य र महत्त्वपूर्ण कुराहरूको लागि रिमाइन्डर बनाउनुहोस्।',
 
     // Most Used Tools
     mostUsedTools: 'बढी प्रयोग हुने',
@@ -452,6 +471,29 @@ export const TRANSLATIONS = {
     favoritesDesc: 'तपाईंले सजिलो पहुँचको लागि राखेका टूल्स',
     addToFavorites: 'मनपर्नेमा थप्नुहोस्',
     removeFromFavorites: 'मनपर्नेबाट हटाउनुहोस्',
+
+    // Reminders
+    reminders: 'रिमाइन्डरहरू',
+    remindersShort: 'रिमाइन्डर',
+    remindersDesc: 'कार्य, जन्मदिन, वार्षिकोत्सव र बिल रिमाइन्डर — पूर्ण रूपमा अफलाइन',
+
+    // Shopping List
+    shoppingList: 'किनमेल सूची',
+    shoppingListShort: 'किनमेल सूची',
+    shoppingListDesc: 'वस्तु, परिमाण, र ऐच्छिक मूल्यसहित किनमेल सूची बनाउनुहोस्',
+
+    edit: 'सम्पादन',
+
+    // Home Page Settings
+    homePageItems: 'गृहपृष्ठका वस्तुहरू',
+    homePageItemsDesc: 'गृहपृष्ठमा के देखाउने भनी छान्नुहोस्',
+    resetToDefault: 'पूर्वनिर्धारितमा फर्काउनुहोस्',
+    homeCardDate: 'आजको मिति',
+    homeCardForex: 'नेपाल विनिमय दर',
+    homeCardGold: 'सुन तथा चाँदीको दर',
+    homeCardUpcomingEvent: 'आगामी घटनाहरू',
+    homeCardReminders: 'रिमाइन्डरहरू',
+    homeCardShoppingList: 'किनमेल सूची',
   },
 };
 

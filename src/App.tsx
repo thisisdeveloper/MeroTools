@@ -29,6 +29,8 @@ const VatCalculator = lazy(() => import('./components/tools/VatCalculator').then
 const EmiCalculator = lazy(() => import('./components/tools/EmiCalculator').then((m) => ({ default: m.EmiCalculator })));
 const CompoundInterestCalculator = lazy(() => import('./components/tools/CompoundInterestCalculator').then((m) => ({ default: m.CompoundInterestCalculator })));
 const SavedLoans = lazy(() => import('./components/tools/SavedLoans').then((m) => ({ default: m.SavedLoans })));
+const Reminders = lazy(() => import('./components/tools/Reminders').then((m) => ({ default: m.Reminders })));
+const ShoppingLists = lazy(() => import('./components/tools/ShoppingLists').then((m) => ({ default: m.ShoppingLists })));
 
 const ToolLoadingFallback: React.FC = () => (
   <div className="flex items-center justify-center py-24">
@@ -148,6 +150,8 @@ export default function App() {
     'emi-calculator': t.emiCalculator,
     'compound-interest': t.compoundInterest,
     'saved-loans': t.savedLoans,
+    'reminders': t.reminders,
+    'shopping-list': t.shoppingList,
   };
 
   const allToolsList: ToolId[] = [
@@ -168,6 +172,8 @@ export default function App() {
     'compound-interest',
     'saved-loans',
     'date-difference',
+    'reminders',
+    'shopping-list',
   ];
 
   return (
@@ -236,6 +242,8 @@ export default function App() {
                 if (tId === 'compound-interest') shortName = t.compoundInterestShort;
                 if (tId === 'saved-loans') shortName = t.savedLoansShort;
                 if (tId === 'date-difference') shortName = t.dateDifferenceShort;
+                if (tId === 'reminders') shortName = t.remindersShort;
+                if (tId === 'shopping-list') shortName = t.shoppingListShort;
 
                 return (
                   <button
@@ -279,6 +287,8 @@ export default function App() {
                   />
                 )}
                 {activeTool === 'saved-loans' && <SavedLoans language={language} />}
+                {activeTool === 'reminders' && <Reminders language={language} />}
+                {activeTool === 'shopping-list' && <ShoppingLists language={language} />}
               </Suspense>
             </div>
           </div>

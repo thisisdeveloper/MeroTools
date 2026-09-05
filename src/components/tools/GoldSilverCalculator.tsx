@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Coins,
   RefreshCw,
@@ -10,15 +10,20 @@ import {
 import {
   getCachedMetalsData,
   fetchLiveMetalsData,
+  fetchRateHistory,
+  buildMetalsData,
   calculateMetalPrice,
   METAL_UNITS,
   MetalUnit,
   DATA_SOURCE_FULL_NAME,
+  RateHistoryDay,
 } from '../../services/metals';
 import { formatNepaliCurrency } from '../../services/forex';
 import { toNepaliDigits } from '../../calendar/bsCalendar';
 import { GoldSilverData, Language } from '../../types';
 import { getTranslation } from '../../i18n/translations';
+import { GoldRateTrendChart } from '../GoldRateTrendChart';
+import { GoldRateCalendar } from '../GoldRateCalendar';
 
 interface GoldSilverCalculatorProps {
   language: Language;
@@ -38,6 +43,12 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
   const [weightStr, setWeightStr] = useState<string>('1');
   const [unit, setUnit] = useState<MetalUnit>('tola');
 
+  // Tabs: Rates (existing calculator) | Trend | Calendar
+  const [activeTab, setActiveTab] = useState<'rates' | 'trend' | 'calendar'>('rates');
+  const [historyDays, setHistoryDays] = useState<RateHistoryDay[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [trendRange, setTrendRange] = useState<7 | 30 | 90>(30);
+
   const handleRefresh = async () => {
     setLoading(true);
     const { data: refreshed, isLive: live } = await fetchLiveMetalsData();
@@ -49,6 +60,28 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
   useEffect(() => {
     handleRefresh();
   }, []);
+
+  // History is fetched once, lazily, the first time the Trend or Calendar
+  // tab is opened — most visits never leave the Rates tab, no need to pay
+  // for the request on every mount.
+  useEffect(() => {
+    if ((activeTab === 'trend' || activeTab === 'calendar') && !historyLoaded) {
+      setHistoryLoaded(true);
+      fetchRateHistory(90).then(setHistoryDays);
+    }
+  }, [activeTab, historyLoaded]);
+
+  const trendPoints = useMemo(() => {
+    const sorted = [...historyDays].sort((a, b) => a.date.localeCompare(b.date));
+    const sliced = sorted.slice(-trendRange);
+    return sliced
+      .map((day) => {
+        const built = buildMetalsData(day.data);
+        if (!built) return null;
+        return { date: day.date, value: built.rates[selectedMetal].tolaPrice };
+      })
+      .filter((p): p is { date: string; value: number } => p !== null);
+  }, [historyDays, trendRange, selectedMetal]);
 
   const weight = parseFloat(weightStr) || 0;
   const currentRatePerTola = data?.rates[selectedMetal].tolaPrice ?? 0;
@@ -124,6 +157,80 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
         </div>
       </div>
 
+      {/* Rates / Trend / Calendar Tabs */}
+      <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full w-full sm:w-fit">
+        {(['rates', 'trend', 'calendar'] as const).map((tab) => (
+          <button
+            key={tab}
+            id={`gold-tab-${tab}`}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ${
+              activeTab === tab
+                ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            {tab === 'rates' && (language === 'ne' ? 'दरहरू' : 'Rates')}
+            {tab === 'trend' && (language === 'ne' ? 'ट्रेन्ड' : 'Trend')}
+            {tab === 'calendar' && (language === 'ne' ? 'क्यालेन्डर' : 'Calendar')}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'trend' && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            {(['fineGold', 'tejabiGold', 'silver'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setSelectedMetal(m)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                  selectedMetal === m
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800'
+                }`}
+              >
+                {m === 'fineGold' && (language === 'ne' ? 'सुन २४K' : 'Gold 24K')}
+                {m === 'tejabiGold' && (language === 'ne' ? 'सुन २२K' : 'Gold 22K')}
+                {m === 'silver' && (language === 'ne' ? 'चाँदी' : 'Silver')}
+              </button>
+            ))}
+            <div className="flex-1" />
+            {([7, 30, 90] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setTrendRange(r)}
+                className={`px-2.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all ${
+                  trendRange === r
+                    ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800'
+                }`}
+              >
+                {r}{language === 'ne' ? 'दि' : 'D'}
+              </button>
+            ))}
+          </div>
+
+          <GoldRateTrendChart
+            points={trendPoints}
+            language={language}
+            colorClassName={
+              selectedMetal === 'silver'
+                ? 'text-slate-400 dark:text-slate-500'
+                : selectedMetal === 'tejabiGold'
+                  ? 'text-yellow-600 dark:text-yellow-500'
+                  : 'text-amber-500 dark:text-amber-400'
+            }
+          />
+        </div>
+      )}
+
+      {activeTab === 'calendar' && (
+        <GoldRateCalendar historyDays={historyDays} language={language} />
+      )}
+
+      {activeTab === 'rates' && (
+      <>
       {/* Bullion Rates Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {/* Fine Gold (24K) Card */}
@@ -301,18 +408,20 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
             </div>
           </div>
 
-          <div className="text-xs text-blue-100 text-right space-y-1 p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-            <div>
-              {language === 'ne' ? 'तौल (ग्राममा): ' : 'Weight in Grams: '}
+          <div className="text-xs text-blue-100 space-y-1.5 p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 min-w-[200px]">
+            <div className="flex items-center justify-between gap-3">
+              <span>{language === 'ne' ? 'तौल (ग्राममा)' : 'Weight in Grams'}</span>
               <strong className="text-white">{calculated.weightInGrams} g</strong>
             </div>
-            <div>
-              {language === 'ne' ? 'तौल (तोलामा): ' : 'Weight in Tolas: '}
+            <div className="flex items-center justify-between gap-3">
+              <span>{language === 'ne' ? 'तौल (तोलामा)' : 'Weight in Tolas'}</span>
               <strong className="text-white">{calculated.weightInTolas} tola</strong>
             </div>
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

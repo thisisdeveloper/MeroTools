@@ -5,6 +5,7 @@ const STORAGE_KEY = 'merotools_metals_cache_v1';
 // only allows CORS from fenegosida.org, so it can't be called directly from
 // the browser/WebView).
 const API_URL = 'https://kumarsunil.com.np/api/helperapi/gold-silver/today/';
+const HISTORY_API_URL = 'https://kumarsunil.com.np/api/helperapi/gold-silver/history/';
 
 export const DATA_SOURCE_NAME = 'FENEGOSIDA';
 export const DATA_SOURCE_FULL_NAME =
@@ -21,7 +22,7 @@ export const TOLA_IN_GRAMS = 11.6638;
 const FINE_GOLD_PURITY_PCT = 99.99;
 const TEJABI_PURITY_PCT = 91.6;
 
-interface FenegosidaRate {
+export interface FenegosidaRate {
   rateType: string;
   todayBaseRatePerGram: number;
   yestardayBaseRatePerGram: number;
@@ -41,7 +42,7 @@ function findRate(rows: FenegosidaRate[], metalKeyword: string, unitKeyword: str
   );
 }
 
-function buildMetalsData(rows: FenegosidaRate[], fetchedAtIso?: string): GoldSilverData | null {
+export function buildMetalsData(rows: FenegosidaRate[], fetchedAtIso?: string): GoldSilverData | null {
   const silverTola = findRate(rows, 'चाँदी', 'तोला');
   const silverTenGram = findRate(rows, 'चाँदी', 'ग्राम');
   const goldTola = findRate(rows, 'सुन', 'तोला');
@@ -160,6 +161,33 @@ export async function fetchLiveMetalsData(): Promise<MetalsFetchResult> {
     return { data, isLive: !payload.stale };
   } catch {
     return { data: getCachedMetalsData(), isLive: false };
+  }
+}
+
+export interface RateHistoryDay {
+  date: string; // "YYYY-MM-DD"
+  data: FenegosidaRate[];
+}
+
+interface HistoryProxyResponse {
+  available: boolean;
+  results: RateHistoryDay[];
+}
+
+// Fails soft — returns [] on any network/parse error so history-dependent
+// UI (trend graph, rate calendar) can render a clean empty state instead
+// of breaking, same convention as fetchLiveMetalsData().
+export async function fetchRateHistory(days: number): Promise<RateHistoryDay[]> {
+  try {
+    const res = await fetch(`${HISTORY_API_URL}?days=${days}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) throw new Error(`History API returned ${res.status}`);
+    const payload: HistoryProxyResponse = await res.json();
+    if (!payload.available || !Array.isArray(payload.results)) return [];
+    return payload.results;
+  } catch {
+    return [];
   }
 }
 

@@ -18,7 +18,7 @@ interface ToolCardData {
   desc: string;
   icon: string;
   iconBg: string;
-  category: 'calendar' | 'finance' | 'utilities' | 'units';
+  category: 'calendar' | 'finance' | 'utilities' | 'units' | 'personal';
   categoryLabel: string;
   isOffline: boolean;
 }
@@ -211,14 +211,35 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
       categoryLabel: isNe ? 'ऋण EMI' : 'Loan EMI',
       isOffline: true,
     },
+    {
+      id: 'reminders',
+      title: t.reminders,
+      desc: t.remindersDesc,
+      icon: '🔔',
+      iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
+      category: 'personal',
+      categoryLabel: isNe ? 'रिमाइन्डर' : 'Reminders',
+      isOffline: true,
+    },
+    {
+      id: 'shopping-list',
+      title: t.shoppingList,
+      desc: t.shoppingListDesc,
+      icon: '🛒',
+      iconBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
+      category: 'personal',
+      categoryLabel: isNe ? 'किनमेल' : 'Shopping',
+      isOffline: true,
+    },
   ];
 
   const categories = [
-    { id: 'all', labelEn: 'All Tools', labelNe: 'सबै टूल्स (१७)' },
+    { id: 'all', labelEn: 'All Tools', labelNe: 'सबै टूल्स (१९)' },
     { id: 'calendar', labelEn: 'Calendar & Dates', labelNe: 'पात्रो र मिति' },
     { id: 'finance', labelEn: 'Financial & Tax', labelNe: 'वित्त तथा कर' },
     { id: 'utilities', labelEn: 'Daily Utilities', labelNe: 'दैनिक उपयोगिता' },
     { id: 'units', labelEn: 'Land & Units', labelNe: 'जग्गा तथा इकाइ' },
+    { id: 'personal', labelEn: 'Personal', labelNe: 'व्यक्तिगत' },
   ];
 
   const comingSoonFeatures: {
@@ -234,13 +255,6 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
       desc: t.locationRemindersDesc,
       icon: '📍',
       iconBg: 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400',
-    },
-    {
-      id: 'smart-task-reminders',
-      title: t.smartTaskRemindersTitle,
-      desc: t.smartTaskRemindersDesc,
-      icon: '⏰',
-      iconBg: 'bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400',
     },
   ];
 
@@ -408,8 +422,8 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {isNe
-                ? '१७ वटा नेपाल-केन्द्रित क्यालकुलेटर तथा सूचना टूल्स'
-                : '17 complete Nepal-centric calculators and information tools'}
+                ? '१९ वटा नेपाल-केन्द्रित क्यालकुलेटर तथा सूचना टूल्स'
+                : '19 complete Nepal-centric calculators and information tools'}
             </p>
           </div>
 

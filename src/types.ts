@@ -15,7 +15,9 @@ export type ToolId =
   | 'vat-calculator'
   | 'emi-calculator'
   | 'compound-interest'
-  | 'saved-loans';
+  | 'saved-loans'
+  | 'reminders'
+  | 'shopping-list';
 
 export type TabId = 'home' | 'tools' | 'settings';
 
@@ -231,4 +233,59 @@ export type ThemeMode = 'system' | 'light' | 'dark';
 export interface AppSettings {
   language: Language;
   theme: ThemeMode;
+}
+
+// ---- Home page customization ----
+
+export type HomeCardId = 'date' | 'forex' | 'gold' | 'upcomingEvent' | 'reminders' | 'shoppingList';
+
+export type HomeSettings = Record<HomeCardId, boolean>;
+
+// ---- Unified Reminders ----
+
+export type ReminderType =
+  | 'task'
+  | 'birthday'
+  | 'anniversary'
+  | 'bill'
+  | 'loan'
+  | 'sip'
+  | 'location'
+  | 'custom';
+
+export type RepeatMode = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+export interface ReminderRecord {
+  id: string;
+  type: ReminderType;
+  title: string;
+  notes: string;
+  dateAd: ADDate; // anchor date: due date, birthdate, first bill date, etc.
+  time: string | null; // "HH:MM", optional
+  repeat: RepeatMode;
+  amount: number | null; // bill / loan / sip
+  notificationEnabled: boolean;
+  isCompleted: boolean; // only meaningful when repeat === 'none'
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---- Shopping Lists ----
+
+export interface ShoppingListRecord {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShoppingItemRecord {
+  id: string;
+  listId: string;
+  name: string;
+  quantity: number;
+  price: number | null;
+  isPurchased: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

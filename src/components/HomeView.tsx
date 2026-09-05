@@ -2,10 +2,13 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { TodayDateCard } from './TodayDateCard';
 import { UpcomingEventCard } from './UpcomingEventCard';
+import { RemindersSummaryCard } from './RemindersSummaryCard';
+import { ShoppingListSummaryCard } from './ShoppingListSummaryCard';
 import { ToolId, Language } from '../types';
 import { getTranslation } from '../i18n/translations';
 import { getCachedForexData, formatNepaliCurrency } from '../services/forex';
 import { getCachedMetalsData } from '../services/metals';
+import { getHomeSettings } from '../services/homeSettings';
 
 interface HomeViewProps {
   language: Language;
@@ -19,6 +22,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const t = getTranslation(language);
   const forex = getCachedForexData();
   const metals = getCachedMetalsData();
+  const homeSettings = getHomeSettings();
 
   const usdRate = forex.rates.find((r) => r.iso3 === 'USD');
   const inrRate = forex.rates.find((r) => r.iso3 === 'INR');
@@ -27,15 +31,48 @@ export const HomeView: React.FC<HomeViewProps> = ({
   return (
     <div id="home-view" className="flex flex-col gap-6 sm:gap-8 max-w-xl mx-auto">
       {/* 1. Today's Date Banner Card */}
-      <TodayDateCard
-        language={language}
-        onOpenDateConverter={() => onSelectTool('date-converter')}
-      />
+      {homeSettings.date && (
+        <TodayDateCard
+          language={language}
+          onOpenDateConverter={() => onSelectTool('date-converter')}
+        />
+      )}
 
       {/* 2. Upcoming Event Countdown */}
-      <UpcomingEventCard language={language} onSelectTool={onSelectTool} />
+      {homeSettings.upcomingEvent && (
+        <UpcomingEventCard language={language} onSelectTool={onSelectTool} />
+      )}
 
-      {/* 3. Forex, Gold & Converter Section */}
+      {/* 2b. Reminders & Shopping List summaries */}
+      {homeSettings.reminders && <RemindersSummaryCard language={language} onSelectTool={onSelectTool} />}
+      {homeSettings.shoppingList && <ShoppingListSummaryCard language={language} onSelectTool={onSelectTool} />}
+
+      {/* 2c. Gold Rate Banner (independent of Forex) */}
+      {homeSettings.gold && metals && (
+        <div
+          onClick={() => onSelectTool('gold-silver')}
+          className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center text-lg">
+              💰
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                {language === 'ne' ? 'छापावाल सुन' : 'Fine Gold (24K)'}
+              </div>
+              <div className="text-sm font-extrabold text-amber-800 dark:text-amber-400">
+                {formatNepaliCurrency(metals.rates.fineGold.tolaPrice)}
+                <span className="text-[10px] text-slate-500 font-normal ml-1">/ तोल</span>
+              </div>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-amber-600" />
+        </div>
+      )}
+
+      {/* 3. Forex & Converter Section */}
+      {homeSettings.forex && (
       <section className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-100 dark:shadow-none">
         <div>
           <div className="flex justify-between items-center mb-6">
@@ -103,30 +140,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
             )}
           </div>
-
-          {/* Gold Rate Indicator Banner */}
-          {metals && (
-            <div
-              onClick={() => onSelectTool('gold-silver')}
-              className="mt-4 p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 cursor-pointer hover:bg-amber-100/40 dark:hover:bg-amber-900/30 transition-colors flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center text-lg">
-                  💰
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                    {language === 'ne' ? 'छापावाल सुन' : 'Fine Gold (24K)'}
-                  </div>
-                  <div className="text-sm font-extrabold text-amber-800 dark:text-amber-400">
-                    {formatNepaliCurrency(metals.rates.fineGold.tolaPrice)}
-                    <span className="text-[10px] text-slate-500 font-normal ml-1">/ तोल</span>
-                  </div>
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-amber-600" />
-            </div>
-          )}
         </div>
 
         {/* Sleek CTA Card for Quick Converter */}
@@ -143,6 +156,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </p>
         </div>
     </section>
+      )}
     </div>
   );
 };
