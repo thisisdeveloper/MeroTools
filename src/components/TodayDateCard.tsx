@@ -42,7 +42,7 @@ export const TodayDateCard: React.FC<TodayDateCardProps> = ({
       <div className="relative z-10">
         {/* Top meta & action pills */}
         <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
-          <p className="text-red-100 text-[11px] sm:text-sm font-semibold uppercase tracking-wider">
+          <p className="text-red-100 text-[11px] sm:text-sm font-semibold tracking-wider">
             {t.todayDate}
           </p>
 

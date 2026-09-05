@@ -120,7 +120,7 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
             </div>
             {reminder.notes && (
               <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                {reminder.notes}
+                <span className="font-semibold">{isNe ? 'टिप्पणी:' : 'Notes:'}</span> {reminder.notes}
               </div>
             )}
             <div className={`text-sm font-extrabold truncate ${meta.accentText}`}>
@@ -174,7 +174,7 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
 
       {upcomingItems.length > 0 && (
         <div className="space-y-2">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+          <div className="text-[10px] font-bold tracking-wider text-slate-500 dark:text-slate-400 px-1">
             {isNe ? 'आगामी' : 'Upcoming'}
           </div>
           {upcomingItems.slice(0, UPCOMING_ROW_CAP).map((r) => renderRow(r, getDaysUntil(r, today) ?? 0))}

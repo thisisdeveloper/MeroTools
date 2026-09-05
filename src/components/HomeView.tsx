@@ -100,7 +100,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{t.forex}</span>
           </div>
-          <span className="px-2.5 py-1 bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase rounded-full shrink-0">
+          <span className="px-2.5 py-1 bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-400 text-[10px] font-bold rounded-full shrink-0">
             NRB Live
           </span>
         </div>
