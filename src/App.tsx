@@ -12,6 +12,11 @@ import { ArrowLeft, Sparkles, Share2 } from 'lucide-react';
 
 const TAB_ORDER: TabId[] = ['home', 'tools', 'settings'];
 
+// Tools that already render their own page title + subtitle at the top
+// of their own body — the generic tool-bar title above the chips would
+// just duplicate it, so it's suppressed for these.
+const SELF_TITLED_TOOLS = new Set<ToolId>(['saved-loans', 'reminders', 'shopping-list']);
+
 const DateConverter = lazy(() => import('./components/tools/DateConverter').then((m) => ({ default: m.DateConverter })));
 const AgeCalculator = lazy(() => import('./components/tools/AgeCalculator').then((m) => ({ default: m.AgeCalculator })));
 const DateDifference = lazy(() => import('./components/tools/DateDifference').then((m) => ({ default: m.DateDifference })));
@@ -202,24 +207,6 @@ export default function App() {
         {/* If a tool is active, display the tool wrapper */}
         {activeTool ? (
           <div className="space-y-4 max-w-3xl mx-auto">
-            {/* Tool Top Bar with Title and Back Button */}
-            <div className="flex items-center justify-between gap-2 pb-1">
-              <h2 className="flex-1 min-w-0 truncate text-sm sm:text-base font-black text-slate-800 dark:text-slate-100">
-                {toolTitles[activeTool]}
-              </h2>
-
-              <button
-                id="tool-back-btn"
-                onClick={handleBackToOverview}
-                aria-label={language === 'ne' ? 'पछाडि' : 'Back'}
-                title={language === 'ne' ? 'पछाडि (Back)' : 'Back'}
-                className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95"
-              >
-                <ArrowLeft className="w-4 h-4 text-red-600" />
-                <span className="hidden sm:inline">{language === 'ne' ? 'पछाडि (Back)' : 'Back'}</span>
-              </button>
-            </div>
-
             {/* Quick Horizontal Tool Switcher Chips */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
               {allToolsList.map((tId) => {
@@ -260,6 +247,28 @@ export default function App() {
                   </button>
                 );
               })}
+            </div>
+
+            {/* Tool Top Bar with Title and Back Button — title omitted for
+                tools that already render their own page title/subtitle
+                internally, so it isn't shown twice. */}
+            <div className="flex items-center justify-between gap-2 pb-1">
+              {!SELF_TITLED_TOOLS.has(activeTool) && (
+                <h2 className="flex-1 min-w-0 truncate text-sm sm:text-base font-black text-slate-800 dark:text-slate-100">
+                  {toolTitles[activeTool]}
+                </h2>
+              )}
+
+              <button
+                id="tool-back-btn"
+                onClick={handleBackToOverview}
+                aria-label={language === 'ne' ? 'पछाडि' : 'Back'}
+                title={language === 'ne' ? 'पछाडि (Back)' : 'Back'}
+                className="flex-shrink-0 flex items-center justify-center gap-2 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm active:scale-95 ml-auto"
+              >
+                <ArrowLeft className="w-4 h-4 text-red-600" />
+                <span className="hidden sm:inline">{language === 'ne' ? 'पछाडि (Back)' : 'Back'}</span>
+              </button>
             </div>
 
             {/* Active Tool Body */}
