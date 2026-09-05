@@ -17,9 +17,14 @@ function daysInMonth(year: number, month: number): number {
 }
 
 // Returns the next relevant date for a reminder as of `today`, or null if
-// it's a completed one-time reminder with nothing left to show.
+// it's a completed one-time reminder with nothing left to show. Location
+// reminders trigger on arrival/departure, not a calendar date, so they
+// always resolve to null here — they're excluded from Today/Missed/
+// Upcoming bucketing and only show up in the "All" list.
 export function getNextOccurrence(reminder: ReminderRecord, today: ADDate): ADDate | null {
-  const { dateAd, repeat, isCompleted } = reminder;
+  const { dateAd, repeat, isCompleted, type } = reminder;
+
+  if (type === 'location') return null;
 
   if (repeat === 'none') {
     return isCompleted ? null : dateAd;

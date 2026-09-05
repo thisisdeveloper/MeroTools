@@ -255,15 +255,25 @@ export type ReminderType =
 
 export type RepeatMode = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
+export interface ReminderLocation {
+  name: string; // what the user searched/picked, e.g. "Bhatbhateni, Koteshwor"
+  lat: number;
+  lng: number;
+  radiusMeters: number; // preset 100/200/500/1000 or a custom value
+  trigger: 'enter' | 'exit';
+  nativeGeofenceId: string | null; // set once registered with the OS; null until then
+}
+
 export interface ReminderRecord {
   id: string;
   type: ReminderType;
   title: string;
   notes: string;
-  dateAd: ADDate; // anchor date: due date, birthdate, first bill date, etc.
+  dateAd: ADDate; // anchor date: due date, birthdate, first bill date, etc. — unused for type === 'location'
   time: string | null; // "HH:MM", optional
   repeat: RepeatMode;
   amount: number | null; // bill / loan / sip
+  location: ReminderLocation | null; // only set when type === 'location'
   notificationEnabled: boolean;
   isCompleted: boolean; // only meaningful when repeat === 'none'
   createdAt: string;

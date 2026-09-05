@@ -1,14 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
   Bell,
   CheckCircle2,
+  Map,
+  MapPin,
   Pencil,
   Plus,
+  Search,
   Trash2,
   X,
 } from 'lucide-react';
-import { ADDate, Language, ReminderRecord, ReminderType, RepeatMode } from '../../types';
+import { ADDate, Language, ReminderLocation, ReminderRecord, ReminderType, RepeatMode } from '../../types';
 import { getTranslation } from '../../i18n/translations';
 import { getTodayDate, toNepaliDigits } from '../../calendar/bsCalendar';
 import { formatNepaliCurrency } from '../../services/forex';
@@ -23,6 +26,19 @@ import {
 import { formatTime12h } from '../../calculations/reminderOccurrence';
 import { AdDatePicker } from '../AdDatePicker';
 import { TYPE_META } from '../../data/reminderTypeMeta';
+import { searchPlaces, PlaceSearchResult } from '../../services/places';
+import {
+  registerGeofence,
+  unregisterGeofence,
+  reconcileGeofences,
+  requestLocationPermission,
+} from '../../services/geofences';
+
+const LocationMapPicker = React.lazy(() =>
+  import('./LocationMapPicker').then((m) => ({ default: m.LocationMapPicker }))
+);
+
+const RADIUS_PRESETS = [100, 200, 500, 1000];
 
 interface RemindersProps {
   language: Language;
@@ -58,6 +74,41 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
   const [formAmount, setFormAmount] = useState('');
   const [formNotes, setFormNotes] = useState('');
 
+  // Location-reminder-only form state.
+  const [locationQuery, setLocationQuery] = useState('');
+  const [locationResults, setLocationResults] = useState<PlaceSearchResult[]>([]);
+  const [locationSearching, setLocationSearching] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
+  const [locationRadius, setLocationRadius] = useState(200);
+  const [locationTrigger, setLocationTrigger] = useState<'enter' | 'exit'>('enter');
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [savingLocation, setSavingLocation] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
+
+  // Reconcile native geofences against saved reminders once on mount —
+  // covers the OS having dropped a region (e.g. after a device restart).
+  useEffect(() => {
+    reconcileGeofences(reminders).catch(() => {
+      // Best-effort — a failed reconcile shouldn't block using the tool.
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (formType !== 'location' || locationQuery.trim().length < 2) {
+      setLocationResults([]);
+      return;
+    }
+    setLocationSearching(true);
+    const handle = setTimeout(() => {
+      searchPlaces(locationQuery).then((results) => {
+        setLocationResults(results);
+        setLocationSearching(false);
+      });
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [locationQuery, formType]);
+
   const openModal = (type: keyof typeof TYPE_META) => {
     setEditingId(null);
     setFormType(type);
@@ -67,6 +118,12 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
     setFormRepeat(TYPE_META[type].defaultRepeat);
     setFormAmount('');
     setFormNotes('');
+    setLocationQuery('');
+    setLocationResults([]);
+    setSelectedPlace(null);
+    setLocationRadius(200);
+    setLocationTrigger('enter');
+    setLocationError(null);
     setShowModal(true);
   };
 
@@ -79,11 +136,94 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
     setFormRepeat(reminder.repeat);
     setFormAmount(reminder.amount != null ? String(reminder.amount) : '');
     setFormNotes(reminder.notes || '');
+    if (reminder.location) {
+      setLocationQuery(reminder.location.name);
+      setSelectedPlace({ name: reminder.location.name, lat: reminder.location.lat, lng: reminder.location.lng });
+      setLocationRadius(reminder.location.radiusMeters);
+      setLocationTrigger(reminder.location.trigger);
+    } else {
+      setLocationQuery('');
+      setSelectedPlace(null);
+      setLocationRadius(200);
+      setLocationTrigger('enter');
+    }
+    setLocationResults([]);
+    setLocationError(null);
     setShowModal(true);
   };
 
-  const handleSave = () => {
+  const handleSelectPlace = (place: PlaceSearchResult) => {
+    setSelectedPlace(place);
+    setLocationQuery(place.name);
+    setLocationResults([]);
+  };
+
+  const handleSave = async () => {
     if (!formTitle.trim()) return;
+
+    if (formType === 'location') {
+      if (!selectedPlace) {
+        setLocationError(isNe ? 'कृपया सूचीबाट स्थान छान्नुहोस्।' : 'Please pick a location from the search results.');
+        return;
+      }
+      setLocationError(null);
+      setSavingLocation(true);
+      try {
+        const permission = await requestLocationPermission();
+        if (!permission.foregroundGranted) {
+          setLocationError(
+            isNe
+              ? 'स्थान अनुमति अस्वीकृत भयो। सेटिङ्समा गई अनुमति दिनुहोस्।'
+              : 'Location permission was denied. Enable it in Settings to use location reminders.'
+          );
+          setSavingLocation(false);
+          return;
+        }
+
+        const location: ReminderLocation = {
+          name: selectedPlace.name,
+          lat: selectedPlace.lat,
+          lng: selectedPlace.lng,
+          radiusMeters: locationRadius,
+          trigger: locationTrigger,
+          nativeGeofenceId: null,
+        };
+        const payload = {
+          type: formType,
+          title: formTitle,
+          notes: formNotes,
+          dateAd: today,
+          time: null,
+          repeat: 'none' as RepeatMode,
+          amount: null,
+          location,
+        };
+
+        // Unregister first when editing, in case coordinates/radius/trigger
+        // changed — always re-register fresh rather than trying to diff.
+        if (editingId) {
+          await unregisterGeofence(editingId);
+          updateReminder(editingId, payload);
+        } else {
+          saveReminder(payload);
+        }
+
+        const allReminders = getReminders();
+        const savedRecord = editingId
+          ? allReminders.find((r) => r.id === editingId)
+          : allReminders[0]; // saveReminder() unshifts the new record to the front
+        if (savedRecord) await registerGeofence(savedRecord);
+
+        setReminders(allReminders);
+        setShowModal(false);
+      } catch {
+        setLocationError(isNe ? 'स्थान रिमाइन्डर सेट गर्न सकिएन।' : 'Could not set up the location reminder.');
+      } finally {
+        setSavingLocation(false);
+      }
+      return;
+    }
+
     const payload = {
       type: formType,
       title: formTitle,
@@ -92,6 +232,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
       time: formTime || null,
       repeat: formRepeat,
       amount: formType === 'bill' && formAmount ? Number(formAmount) : null,
+      location: null,
     };
     if (editingId) {
       updateReminder(editingId, payload);
@@ -108,6 +249,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
   };
 
   const handleDelete = (id: string) => {
+    unregisterGeofence(id).catch(() => {});
     deleteReminder(id);
     setReminders(getReminders());
     setConfirmDeleteId(null);
@@ -219,7 +361,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
       </div>
 
       {/* Quick add row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-1.5">
         {(Object.keys(TYPE_META) as (keyof typeof TYPE_META)[]).map((key) => {
           const meta = TYPE_META[key];
           const Icon = meta.icon;
@@ -270,7 +412,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
           {filteredList.map(({ reminder, days }) => {
             const meta = TYPE_META[reminder.type as keyof typeof TYPE_META] || TYPE_META.task;
             const Icon = meta.icon;
-            const canComplete = reminder.repeat === 'none';
+            const canComplete = reminder.repeat === 'none' && reminder.type !== 'location';
             return (
               <div
                 key={reminder.id}
@@ -313,22 +455,38 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{reminder.notes}</p>
                   )}
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <span
-                      className={`text-[11px] font-bold ${
-                        days !== null && days < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'
-                      }`}
-                    >
-                      {statusLabel(reminder.type, filter === 'completed' ? null : days)}
-                    </span>
-                    {reminder.time && (
-                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                        {formatTime12h(reminder.time, isNe)}
-                      </span>
-                    )}
-                    {reminder.amount != null && (
-                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                        {formatNepaliCurrency(reminder.amount)}
-                      </span>
+                    {reminder.type === 'location' && reminder.location ? (
+                      <>
+                        <span className="text-[11px] font-bold text-violet-700 dark:text-violet-400 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {reminder.location.trigger === 'enter'
+                            ? isNe ? 'आइपुग्दा' : 'On arrival'
+                            : isNe ? 'छोड्दा' : 'On leaving'}
+                        </span>
+                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                          {reminder.location.name} · {reminder.location.radiusMeters}m
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span
+                          className={`text-[11px] font-bold ${
+                            days !== null && days < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'
+                          }`}
+                        >
+                          {statusLabel(reminder.type, filter === 'completed' ? null : days)}
+                        </span>
+                        {reminder.time && (
+                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                            {formatTime12h(reminder.time, isNe)}
+                          </span>
+                        )}
+                        {reminder.amount != null && (
+                          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                            {formatNepaliCurrency(reminder.amount)}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -399,7 +557,7 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
             </div>
 
             {/* Type picker */}
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-1.5">
               {(Object.keys(TYPE_META) as (keyof typeof TYPE_META)[]).map((key) => {
                 const meta = TYPE_META[key];
                 const Icon = meta.icon;
@@ -444,40 +602,156 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                {formType === 'birthday'
-                  ? isNe ? 'जन्म मिति' : 'Birth Date'
-                  : formType === 'anniversary'
-                    ? isNe ? 'वार्षिकोत्सव मिति' : 'Anniversary Date'
-                    : isNe ? 'मिति' : 'Date'}
-              </label>
-              <AdDatePicker idPrefix="reminder-date" value={formDate} onChange={setFormDate} language={language} />
-            </div>
+            {formType === 'location' ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {isNe ? 'स्थान खोज्नुहोस्' : 'Search location'}
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={locationQuery}
+                      onChange={(e) => {
+                        setLocationQuery(e.target.value);
+                        setSelectedPlace(null);
+                      }}
+                      placeholder={isNe ? 'ठाउँको नाम टाइप गर्नुहोस्...' : 'Type a place name...'}
+                      className="w-full pl-9 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+                    />
+                  </div>
+                  {locationSearching && (
+                    <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+                      {isNe ? 'खोज्दै...' : 'Searching...'}
+                    </p>
+                  )}
+                  {!locationSearching && locationResults.length > 0 && (
+                    <div className="mt-1.5 rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
+                      {locationResults.map((place, idx) => (
+                        <button
+                          key={`${place.lat}-${place.lng}-${idx}`}
+                          type="button"
+                          onClick={() => handleSelectPlace(place)}
+                          className="w-full text-left px-3 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          {place.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {!locationSearching && !selectedPlace && locationQuery.trim().length >= 2 && locationResults.length === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowMapPicker(true)}
+                      className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-violet-600 dark:text-violet-400"
+                    >
+                      <Map className="w-3.5 h-3.5" />
+                      {isNe ? "फेला परेन? नक्सामा छान्नुहोस्" : "Can't find it? Pick on map"}
+                    </button>
+                  )}
+                  {selectedPlace && (
+                    <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-violet-600 dark:text-violet-400">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {selectedPlace.name}
+                    </div>
+                  )}
+                </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                {isNe ? 'समय (ऐच्छिक)' : 'Time (optional)'}
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  id="reminder-time-input"
-                  type="time"
-                  value={formTime}
-                  onChange={(e) => setFormTime(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
-                />
-                {formTime && (
-                  <button
-                    type="button"
-                    onClick={() => setFormTime('')}
-                    className="shrink-0 px-3 py-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    {isNe ? 'हटाउनुहोस्' : 'Clear'}
-                  </button>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {isNe ? 'दायरा' : 'Radius'}
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {RADIUS_PRESETS.map((radius) => (
+                      <button
+                        key={radius}
+                        type="button"
+                        onClick={() => setLocationRadius(radius)}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                          locationRadius === radius
+                            ? 'bg-violet-600 text-white'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {radius >= 1000 ? `${radius / 1000}km` : `${radius}m`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {isNe ? 'कहिले सूचित गर्ने' : 'Notify me when I'}
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setLocationTrigger('enter')}
+                      className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+                        locationTrigger === 'enter'
+                          ? 'bg-violet-600 text-white'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {isNe ? 'आइपुग्दा' : 'Arrive'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLocationTrigger('exit')}
+                      className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+                        locationTrigger === 'exit'
+                          ? 'bg-violet-600 text-white'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {isNe ? 'छोड्दा' : 'Leave'}
+                    </button>
+                  </div>
+                </div>
+
+                {locationError && (
+                  <p className="text-xs font-bold text-red-600 dark:text-red-400">{locationError}</p>
                 )}
               </div>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {formType === 'birthday'
+                      ? isNe ? 'जन्म मिति' : 'Birth Date'
+                      : formType === 'anniversary'
+                        ? isNe ? 'वार्षिकोत्सव मिति' : 'Anniversary Date'
+                        : isNe ? 'मिति' : 'Date'}
+                  </label>
+                  <AdDatePicker idPrefix="reminder-date" value={formDate} onChange={setFormDate} language={language} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {isNe ? 'समय (ऐच्छिक)' : 'Time (optional)'}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="reminder-time-input"
+                      type="time"
+                      value={formTime}
+                      onChange={(e) => setFormTime(e.target.value)}
+                      className="flex-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+                    />
+                    {formTime && (
+                      <button
+                        type="button"
+                        onClick={() => setFormTime('')}
+                        className="shrink-0 px-3 py-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        {isNe ? 'हटाउनुहोस्' : 'Clear'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             {formType === 'bill' && (
               <div>
@@ -536,14 +810,28 @@ export const Reminders: React.FC<RemindersProps> = ({ language, onBack }) => {
               <button
                 id="reminder-save-btn"
                 onClick={handleSave}
-                disabled={!formTitle.trim()}
+                disabled={!formTitle.trim() || savingLocation}
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t.save}
+                {savingLocation ? (isNe ? 'बचत गर्दै...' : 'Saving...') : t.save}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {showMapPicker && (
+        <Suspense fallback={null}>
+          <LocationMapPicker
+            language={language}
+            initialCenter={selectedPlace ? { lat: selectedPlace.lat, lng: selectedPlace.lng } : null}
+            onCancel={() => setShowMapPicker(false)}
+            onConfirm={(place) => {
+              handleSelectPlace(place);
+              setShowMapPicker(false);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

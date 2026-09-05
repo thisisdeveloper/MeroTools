@@ -28,7 +28,30 @@
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<!-- TEMPORARY (testing only): allows plain HTTP to the dev
+		     machine's LAN IP so Location Reminders search can be tested
+		     before the backend endpoint is deployed to production.
+		     Remove this exception once places.ts points back at
+		     https://kumarsunil.com.np. -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>172.20.10.5</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Mero Tools uses your location to remind you about tasks when you arrive at or leave a place you've set a reminder for.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Mero Tools needs Always access so location reminders can still notify you when the app isn't open.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Mero Tools needs Always access so location reminders can still notify you when the app isn't open.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

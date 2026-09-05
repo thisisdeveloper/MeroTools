@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cake, Heart, ListTodo, Receipt } from 'lucide-react';
+import { Cake, Heart, ListTodo, MapPin, Receipt } from 'lucide-react';
 import { ReminderType, RepeatMode } from '../types';
 
 // Lives outside components/tools/Reminders.tsx (a lazy-loaded route chunk)
@@ -9,7 +9,7 @@ import { ReminderType, RepeatMode } from '../types';
 // main bundle. A static import from a lazy chunk defeats React.lazy's
 // code-splitting for that chunk.
 export const TYPE_META: Record<
-  Extract<ReminderType, 'task' | 'birthday' | 'anniversary' | 'bill'>,
+  Extract<ReminderType, 'task' | 'birthday' | 'anniversary' | 'bill' | 'location'>,
   {
     icon: React.FC<{ className?: string }>;
     iconBg: string;
@@ -60,5 +60,15 @@ export const TYPE_META: Record<
     labelNe: 'बिल',
     placeholderEn: 'e.g. Internet Bill',
     placeholderNe: 'जस्तै: इन्टरनेट बिल',
+  },
+  location: {
+    icon: MapPin,
+    iconBg: 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400',
+    accentText: 'text-violet-700 dark:text-violet-400',
+    defaultRepeat: 'none',
+    labelEn: 'Location',
+    labelNe: 'स्थान',
+    placeholderEn: 'e.g. Buy vegetables',
+    placeholderNe: 'जस्तै: तरकारी किन्ने',
   },
 };

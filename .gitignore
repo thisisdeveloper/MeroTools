@@ -1,6 +1,6 @@
 node_modules/
 build/
-dist/
+/dist/
 coverage/
 .DS_Store
 *.log
@@ -16,3 +16,8 @@ android/captures/
 android/.idea/
 *.jks
 *.keystore
+
+# Vendored native plugins keep their own node_modules out of git — only
+# the plugin source/patches (native-plugins/*/android, ios, dist, etc.)
+# should be committed; npm reinstalls this via the file: dependency.
+native-plugins/*/node_modules/

@@ -207,12 +207,6 @@ export const TRANSLATIONS = {
     offlineReady: 'Offline-Ready Utilities',
     quickSummary: 'Quick Market Glance',
 
-    // Coming Soon features
-    comingSoon: 'Coming Soon',
-    comingSoonSectionDesc: 'Productivity features we’re building next',
-    locationRemindersTitle: 'Location Reminders',
-    locationRemindersDesc: 'Get reminded about tasks when you arrive at a specific location.',
-
     // Most Used Tools
     mostUsedTools: 'Most Used',
     mostUsedToolsDesc: 'Your frequently used tools, right at the top',
@@ -453,12 +447,6 @@ export const TRANSLATIONS = {
     version: 'संस्करण',
     offlineReady: 'अफलाइन उपलब्ध टूल्स',
     quickSummary: 'बजारको छोटो झलक',
-
-    // Coming Soon features
-    comingSoon: 'चाँडै आउँदैछ',
-    comingSoonSectionDesc: 'हामी अब निर्माण गर्दै गरेका उत्पादकत्व सुविधाहरू',
-    locationRemindersTitle: 'स्थान रिमाइन्डर',
-    locationRemindersDesc: 'तपाईं कुनै विशेष स्थानमा पुग्दा त्यहाँका कार्यहरूको सम्झना गराइनेछ।',
 
     // Most Used Tools
     mostUsedTools: 'बढी प्रयोग हुने',

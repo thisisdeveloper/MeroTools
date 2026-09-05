@@ -32,4 +32,17 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Location reminders: fine/coarse for the initial "When In Use" grant,
+         background for geofence delivery while the app isn't foregrounded
+         (requested separately at runtime, only when a location reminder is
+         first added — see src/services/geofences.ts). -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!-- Local notifications (Android 13+ requires this as a runtime permission too) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>

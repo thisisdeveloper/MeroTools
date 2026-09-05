@@ -1,4 +1,4 @@
-import { ADDate, RepeatMode, ReminderRecord, ReminderType } from '../types';
+import { ADDate, ReminderLocation, RepeatMode, ReminderRecord, ReminderType } from '../types';
 import { getNextOccurrence, getDaysUntil } from '../calculations/reminderOccurrence';
 
 const STORAGE_KEY = 'merotools_reminders_v1';
@@ -29,6 +29,7 @@ export interface NewReminderInput {
   time?: string | null;
   repeat: RepeatMode;
   amount?: number | null;
+  location?: ReminderLocation | null;
   notificationEnabled?: boolean;
 }
 
@@ -43,6 +44,7 @@ export function saveReminder(input: NewReminderInput): ReminderRecord {
     time: input.time || null,
     repeat: input.repeat,
     amount: input.amount ?? null,
+    location: input.location ?? null,
     notificationEnabled: input.notificationEnabled ?? false,
     isCompleted: false,
     createdAt: now,
