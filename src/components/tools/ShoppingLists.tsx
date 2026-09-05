@@ -63,6 +63,15 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
   const activeList = lists.find((l) => l.id === activeListId) || null;
   const items = useMemo(() => (activeListId ? getItemsForList(activeListId) : []), [activeListId, lists]);
   const estimatedTotal = useMemo(() => getEstimatedTotal(items), [items]);
+
+  // Same item name (case/whitespace-insensitive) already in this list —
+  // excludes the item currently being edited, so renaming to your own
+  // unchanged name isn't flagged as a duplicate.
+  const isDuplicateName = useMemo(() => {
+    const key = itemName.trim().toLowerCase();
+    if (!key) return false;
+    return items.some((i) => i.id !== editingItemId && i.name.trim().toLowerCase() === key);
+  }, [items, itemName, editingItemId]);
   const hasPurchased = items.some((i) => i.isPurchased);
 
   const refreshLists = () => setLists(getShoppingLists());
@@ -148,7 +157,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
   };
 
   const handleSaveItem = () => {
-    if (!activeListId || !itemName.trim()) return;
+    if (!activeListId || !itemName.trim() || isDuplicateName) return;
     const finalUnit = itemUnit === 'other' ? itemCustomUnit.trim() || null : itemUnit || null;
     const patch = {
       name: itemName,
@@ -483,9 +492,18 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                 onFocus={() => setShowSuggestions(nameSuggestions.length > 0)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 120)}
                 placeholder={isNe ? 'जस्तै: दूध' : 'e.g. Milk'}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:outline-none ${
+                  isDuplicateName
+                    ? 'border-red-400 dark:border-red-600 focus:ring-red-500'
+                    : 'border-slate-200 dark:border-slate-700 focus:ring-red-500'
+                }`}
               />
-              {showSuggestions && nameSuggestions.length > 0 && (
+              {isDuplicateName && (
+                <p className="text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5">
+                  {isNe ? 'यो वस्तु पहिले नै यस सूचीमा छ।' : 'This item is already in this list.'}
+                </p>
+              )}
+              {!isDuplicateName && showSuggestions && nameSuggestions.length > 0 && (
                 <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
                   {nameSuggestions.map((s) => (
                     <button
@@ -579,7 +597,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
               <button
                 id="item-save-btn"
                 onClick={handleSaveItem}
-                disabled={!itemName.trim()}
+                disabled={!itemName.trim() || isDuplicateName}
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {t.save}
