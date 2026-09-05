@@ -277,6 +277,11 @@ export interface ShoppingListRecord {
   title: string;
   notes: string | null;
   purchaseByDate: ADDate | null;
+  // A palette key (see LIST_COLOR_PALETTE in services/shoppingLists.ts),
+  // assigned randomly once at creation so each list keeps a stable but
+  // distinct icon color. Optional so lists created before this field
+  // existed still load fine (they fall back to a default color).
+  color?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, ChevronLeft, ListChecks, Plus, RotateCcw, Trash2, X, CheckCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ListChecks, Plus, RotateCcw, ShoppingBag, Trash2, X, CheckCheck, CheckCircle2 } from 'lucide-react';
 import { ADDate, Language, ShoppingListRecord } from '../../types';
 import { getTranslation } from '../../i18n/translations';
 import { formatNepaliCurrency } from '../../services/forex';
@@ -19,6 +19,7 @@ import {
   getEstimatedTotal,
   getDaysUntilPurchase,
   formatPurchaseByStatus,
+  getListColorClasses,
 } from '../../services/shoppingLists';
 import { getItemSuggestions, rememberItemUnit, findExactItemMatch } from '../../services/itemSuggestions';
 import { AdDatePicker } from '../AdDatePicker';
@@ -269,13 +270,18 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language, onBack }
               const remaining = listItems.filter((i) => !i.isPurchased).length;
               const listTotal = getEstimatedTotal(listItems);
               const purchaseDays = getDaysUntilPurchase(list, getTodayDate().ad);
+              const colorClasses = getListColorClasses(list.color);
               return (
                 <div
                   key={list.id}
                   id={`shopping-list-item-${list.id}`}
                   className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-3"
                 >
-                  <button onClick={() => setActiveListId(list.id)} className="flex-1 min-w-0 text-left">
+                  <button onClick={() => setActiveListId(list.id)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${colorClasses.iconBg}`}>
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">{list.title}</h3>
                     {list.notes && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{list.notes}</p>
@@ -296,6 +302,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language, onBack }
                           {formatPurchaseByStatus(purchaseDays, isNe).text}
                         </span>
                       )}
+                    </div>
                     </div>
                   </button>
                   {confirmDeleteListId === list.id ? (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListChecks, ArrowRight } from 'lucide-react';
+import { ListChecks, ShoppingBag, ArrowRight } from 'lucide-react';
 import { ToolId, Language } from '../types';
 import { getTodayDate, toNepaliDigits } from '../calendar/bsCalendar';
 import { formatNepaliCurrency } from '../services/forex';
@@ -9,6 +9,7 @@ import {
   getEstimatedTotal,
   getDaysUntilPurchase,
   formatPurchaseByStatus,
+  getListColorClasses,
 } from '../services/shoppingLists';
 
 interface ShoppingListSummaryCardProps {
@@ -59,31 +60,39 @@ export const ShoppingListSummaryCard: React.FC<ShoppingListSummaryCardProps> = (
       </div>
 
       <div className="space-y-2">
-        {visible.map(({ list, remaining, total, purchaseDays }) => (
-          <div key={list.id} className="p-3 rounded-xl bg-white dark:bg-slate-900">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{list.title}</span>
-              {total > 0 && (
-                <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 shrink-0">
-                  {formatNepaliCurrency(total)}
-                </span>
-              )}
+        {visible.map(({ list, remaining, total, purchaseDays }) => {
+          const colorClasses = getListColorClasses(list.color);
+          return (
+            <div key={list.id} className="p-3 rounded-xl bg-white dark:bg-slate-900 flex items-start gap-2.5">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClasses.iconBg}`}>
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{list.title}</span>
+                  {total > 0 && (
+                    <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 shrink-0">
+                      {formatNepaliCurrency(total)}
+                    </span>
+                  )}
+                </div>
+                {list.notes && (
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{list.notes}</div>
+                )}
+                <div className="flex items-center gap-2 flex-wrap mt-1">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    {isNe ? `${toNepaliDigits(remaining)} वस्तु बाँकी` : `${remaining} item${remaining === 1 ? '' : 's'} remaining`}
+                  </span>
+                  {purchaseDays !== null && (
+                    <span className={`text-[11px] font-bold ${formatPurchaseByStatus(purchaseDays, isNe).colorClass}`}>
+                      {formatPurchaseByStatus(purchaseDays, isNe).text}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            {list.notes && (
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{list.notes}</div>
-            )}
-            <div className="flex items-center gap-2 flex-wrap mt-1">
-              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                {isNe ? `${toNepaliDigits(remaining)} वस्तु बाँकी` : `${remaining} item${remaining === 1 ? '' : 's'} remaining`}
-              </span>
-              {purchaseDays !== null && (
-                <span className={`text-[11px] font-bold ${formatPurchaseByStatus(purchaseDays, isNe).colorClass}`}>
-                  {formatPurchaseByStatus(purchaseDays, isNe).text}
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
         {extra > 0 && (
           <div className="text-[11px] text-slate-500 dark:text-slate-400 px-1">
             {isNe ? `+${toNepaliDigits(extra)} थप सूची` : `+${extra} more list${extra === 1 ? '' : 's'}`}

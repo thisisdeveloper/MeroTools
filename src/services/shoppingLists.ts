@@ -28,6 +28,31 @@ function writeJson<T>(key: string, data: T[]): void {
 
 // ---- Lists ----
 
+// One list icon design, colored differently per list so they're easy to
+// tell apart at a glance — the color itself carries no meaning, it's
+// just assigned randomly (and then kept stable) at creation time.
+export const LIST_COLOR_PALETTE = [
+  'blue', 'emerald', 'amber', 'rose', 'purple', 'teal', 'indigo', 'pink', 'cyan', 'orange',
+] as const;
+
+const LIST_COLOR_CLASSES: Record<string, { iconBg: string; accentText: string }> = {
+  blue: { iconBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400', accentText: 'text-blue-700 dark:text-blue-400' },
+  emerald: { iconBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400', accentText: 'text-emerald-700 dark:text-emerald-400' },
+  amber: { iconBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400', accentText: 'text-amber-700 dark:text-amber-400' },
+  rose: { iconBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400', accentText: 'text-rose-700 dark:text-rose-400' },
+  purple: { iconBg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400', accentText: 'text-purple-700 dark:text-purple-400' },
+  teal: { iconBg: 'bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400', accentText: 'text-teal-700 dark:text-teal-400' },
+  indigo: { iconBg: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400', accentText: 'text-indigo-700 dark:text-indigo-400' },
+  pink: { iconBg: 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400', accentText: 'text-pink-700 dark:text-pink-400' },
+  cyan: { iconBg: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400', accentText: 'text-cyan-700 dark:text-cyan-400' },
+  orange: { iconBg: 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400', accentText: 'text-orange-700 dark:text-orange-400' },
+};
+
+// Falls back to 'emerald' for lists saved before the color field existed.
+export function getListColorClasses(color?: string): { iconBg: string; accentText: string } {
+  return LIST_COLOR_CLASSES[color || ''] || LIST_COLOR_CLASSES.emerald;
+}
+
 export function getShoppingLists(): ShoppingListRecord[] {
   return readJson<ShoppingListRecord>(LISTS_KEY);
 }
@@ -39,6 +64,7 @@ export function createShoppingList(title: string): ShoppingListRecord {
     title: title.trim() || 'Untitled List',
     notes: null,
     purchaseByDate: null,
+    color: LIST_COLOR_PALETTE[Math.floor(Math.random() * LIST_COLOR_PALETTE.length)],
     createdAt: now,
     updatedAt: now,
   };
