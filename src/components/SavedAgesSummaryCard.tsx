@@ -40,7 +40,7 @@ export const SavedAgesSummaryCard: React.FC<SavedAgesSummaryCardProps> = ({ lang
   return (
     <div
       id="saved-ages-summary-card"
-      className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-rose-50 dark:from-amber-950/20 dark:to-rose-950/20 border border-rose-200/50 dark:border-rose-900/30 space-y-2.5"
+      className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 to-fuchsia-50 dark:from-rose-950/20 dark:to-fuchsia-950/20 border border-rose-200/50 dark:border-rose-900/30 space-y-2.5"
     >
       <div
         onClick={() => onSelectTool('saved-ages')}
