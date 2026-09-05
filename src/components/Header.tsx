@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-tools-view-toggle-btn"
               onClick={onToggleToolsViewMode}
-              className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full transition-colors flex-shrink-0"
+              className="p-1.5 sm:p-2 text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full transition-colors flex-shrink-0"
               aria-label={
                 toolsViewMode === 'list'
                   ? language === 'ne' ? 'कार्ड दृश्यमा जानुहोस्' : 'Switch to card view'
@@ -102,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             id="theme-toggle-btn"
             onClick={toggleTheme}
-            className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full transition-colors flex-shrink-0"
+            className="p-1.5 sm:p-2 text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-full transition-colors flex-shrink-0"
             title={`Theme: ${theme}`}
           >
             {theme === 'dark' ? (

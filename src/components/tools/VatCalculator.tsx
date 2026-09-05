@@ -89,7 +89,7 @@ export const VatCalculator: React.FC<VatCalculatorProps> = ({ language }) => {
             {language === 'ne' ? 'रकम (नेपाली रुपैयाँ NPR)' : 'Amount (NPR)'}
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">
               Rs.
             </span>
             <input
@@ -107,7 +107,7 @@ export const VatCalculator: React.FC<VatCalculatorProps> = ({ language }) => {
 
         {/* Quick Amount Presets */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+          <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
             {language === 'ne' ? 'द्रुत रकम:' : 'Quick:'}
           </span>
           {presets.map((val) => (

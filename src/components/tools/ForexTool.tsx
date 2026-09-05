@@ -68,7 +68,7 @@ export const ForexTool: React.FC<ForexToolProps> = ({ language }) => {
           <span className="font-bold text-slate-900 dark:text-slate-100">
             {t.nrbRates}
           </span>
-          <span className="text-slate-400">•</span>
+          <span className="text-slate-500">•</span>
           <span className="text-slate-500 dark:text-slate-400 text-xs">
             {t.lastUpdated}: {forexData.lastUpdated}
           </span>
@@ -225,7 +225,7 @@ export const ForexTool: React.FC<ForexToolProps> = ({ language }) => {
           </h3>
 
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               id="forex-search-input"
               type="text"

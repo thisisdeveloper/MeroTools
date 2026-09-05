@@ -132,7 +132,7 @@ Net Monthly In-Hand Salary: NPR ${taxResult.netMonthlyTakeHome.toLocaleString()}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center justify-between">
               <span>{isNe ? 'दशैं / चाडपर्व बोनस (महिना)' : 'Festival / Dashain Bonus'}</span>
-              <span className="text-slate-400 font-medium">{isNe ? 'महिना तलब' : 'Month Salary'}</span>
+              <span className="text-slate-500 font-medium">{isNe ? 'महिना तलब' : 'Month Salary'}</span>
             </label>
             <select
               value={bonusMonths}

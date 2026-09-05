@@ -200,7 +200,7 @@ ${subjects.map((s) => `- ${s.name}: ${s.letterGrade} (${s.gradePoint} GP, ${s.cr
               {/* Credit Hours & Grade Letter */}
               <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-slate-400 font-medium">Credits:</span>
+                  <span className="text-[11px] text-slate-500 font-medium">Credits:</span>
                   <input
                     type="number"
                     step="0.5"
@@ -213,7 +213,7 @@ ${subjects.map((s) => `- ${s.name}: ${s.letterGrade} (${s.gradePoint} GP, ${s.cr
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-slate-400 font-medium">Grade:</span>
+                  <span className="text-[11px] text-slate-500 font-medium">Grade:</span>
                   <select
                     value={sub.letterGrade}
                     onChange={(e) => handleGradeChange(sub.id, e.target.value)}
@@ -230,7 +230,7 @@ ${subjects.map((s) => `- ${s.name}: ${s.letterGrade} (${s.gradePoint} GP, ${s.cr
                 <button
                   onClick={() => handleRemoveSubject(sub.id)}
                   disabled={subjects.length <= 1}
-                  className="p-1.5 text-slate-400 hover:text-red-600 disabled:opacity-30 transition-colors"
+                  className="p-1.5 text-slate-500 hover:text-red-600 disabled:opacity-30 transition-colors"
                   title="Remove subject"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -257,7 +257,7 @@ ${subjects.map((s) => `- ${s.name}: ${s.letterGrade} (${s.gradePoint} GP, ${s.cr
                 <span className="font-extrabold text-red-600 dark:text-red-400 text-sm">{sc.letter}</span>
                 <span className="font-bold text-slate-700 dark:text-slate-300">{sc.gradePoint} GP</span>
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">{sc.percentRange}</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">{sc.percentRange}</div>
               <div className="text-[10px] text-slate-500 truncate mt-0.5">
                 {isNe ? sc.descriptionNe : sc.descriptionEn}
               </div>

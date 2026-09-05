@@ -262,7 +262,7 @@ export const NepaliCalendar: React.FC<NepaliCalendarProps> = ({ language }) => {
 
                 {/* Bottom row: AD Date & Festival dot */}
                 <div className="w-full flex items-end justify-between mt-auto">
-                  <span className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-500 leading-none">
+                  <span className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 leading-none">
                     {item.adDay}
                   </span>
 
@@ -363,7 +363,7 @@ export const NepaliCalendar: React.FC<NepaliCalendarProps> = ({ language }) => {
             ))}
           </div>
         ) : (
-          <div className="p-6 text-center text-xs text-slate-400 dark:text-slate-500">
+          <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
             {isNe ? 'यस महिनामा कुनै मुख्य सार्वजनिक बिदा दर्ता गरिएको छैन।' : 'No major registered public holidays for this month.'}
           </div>
         )}

@@ -275,7 +275,7 @@ export const CompoundInterestCalculator: React.FC<CompoundInterestCalculatorProp
 
           <button
             onClick={handleReset}
-            className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            className="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.reset}</span>
@@ -904,7 +904,7 @@ export const CompoundInterestCalculator: React.FC<CompoundInterestCalculatorProp
               </h3>
               <button
                 onClick={() => setShowSaveModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-slate-500 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>

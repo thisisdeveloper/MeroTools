@@ -49,7 +49,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* Appearance Section */}
       <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
           {t.appearance}
         </h3>
 
@@ -100,7 +100,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* Language Section */}
       <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
           {t.language}
         </h3>
 
@@ -115,7 +115,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             }`}
           >
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-slate-400" />
+              <Globe className="w-4 h-4 text-slate-500" />
               <span>English</span>
             </div>
             {language === 'en' && <Check className="w-4 h-4 text-red-600" />}
@@ -141,7 +141,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* Legal & Policy Section */}
       <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
           {t.about}
         </h3>
 
@@ -156,7 +156,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span className="font-semibold">{t.privacyPolicy}</span>
             </div>
-            <FileText className="w-4 h-4 text-slate-400" />
+            <FileText className="w-4 h-4 text-slate-500" />
           </button>
 
           {/* Terms & Data Disclaimers */}
@@ -169,7 +169,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <Building className="w-4 h-4 text-red-600 dark:text-red-400" />
               <span className="font-semibold">{t.dataSources}</span>
             </div>
-            <FileText className="w-4 h-4 text-slate-400" />
+            <FileText className="w-4 h-4 text-slate-500" />
           </button>
         </div>
       </div>
@@ -182,7 +182,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div>
           {t.version} 1.0.0 • {language === 'ne' ? 'अफलाइन गणना समर्थन' : 'Offline Engine Supported'}
         </div>
-        <div className="text-[11px] text-slate-400">
+        <div className="text-[11px] text-slate-500">
           Designed for everyday productivity in Nepal.
         </div>
       </div>
@@ -198,7 +198,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </h3>
               <button
                 onClick={() => setShowTermsModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold"
+                className="text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold"
               >
                 ✕
               </button>

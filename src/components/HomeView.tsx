@@ -62,7 +62,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="font-black text-slate-800 dark:text-slate-100 text-base">
                     Rs {usdRate.buy.toFixed(2)}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-medium">{t.buyRate}</div>
+                  <div className="text-[10px] text-slate-500 font-medium">{t.buyRate}</div>
                 </div>
               </div>
             )}
@@ -80,7 +80,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="font-black text-slate-800 dark:text-slate-100 text-base">
                     Rs {inrRate.buy.toFixed(2)}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-medium">Fixed Rate</div>
+                  <div className="text-[10px] text-slate-500 font-medium">Fixed Rate</div>
                 </div>
               </div>
             )}
@@ -98,7 +98,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="font-black text-slate-800 dark:text-slate-100 text-base">
                     Rs {audRate.buy.toFixed(2)}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-medium">{t.buyRate}</div>
+                  <div className="text-[10px] text-slate-500 font-medium">{t.buyRate}</div>
                 </div>
               </div>
             )}
@@ -120,7 +120,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   </div>
                   <div className="text-sm font-extrabold text-amber-800 dark:text-amber-400">
                     {formatNepaliCurrency(metals.rates.fineGold.tolaPrice)}
-                    <span className="text-[10px] text-slate-400 font-normal ml-1">/ तोल</span>
+                    <span className="text-[10px] text-slate-500 font-normal ml-1">/ तोल</span>
                   </div>
                 </div>
               </div>

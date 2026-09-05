@@ -181,7 +181,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <section className="p-5 sm:p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2">
-    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{title}</h2>
+    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{title}</h2>
     {children}
   </section>
 );

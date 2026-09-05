@@ -60,7 +60,7 @@ export const PublicHolidays: React.FC<PublicHolidaysProps> = ({ language }) => {
       <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
         {/* Search Bar */}
         <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             id="holiday-search-input"
             type="text"
@@ -76,7 +76,7 @@ export const PublicHolidays: React.FC<PublicHolidaysProps> = ({ language }) => {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded-lg"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded-lg"
             >
               {isNe ? 'खाली' : 'Clear'}
             </button>
@@ -168,7 +168,7 @@ export const PublicHolidays: React.FC<PublicHolidaysProps> = ({ language }) => {
                       {isNe ? item.descriptionNe : item.descriptionEn}
                     </p>
 
-                    <div className="flex items-center gap-3 text-[11px] text-slate-400 dark:text-slate-500 pt-0.5">
+                    <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
                       <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-300">
                         <Calendar className="w-3.5 h-3.5 text-red-500" />
                         <span>{item.dayOfWeekNe}</span>
@@ -183,11 +183,11 @@ export const PublicHolidays: React.FC<PublicHolidaysProps> = ({ language }) => {
           })
         ) : (
           <div className="p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center space-y-2">
-            <Flag className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
+            <Flag className="w-8 h-8 text-slate-500 dark:text-slate-600 mx-auto" />
             <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
               {isNe ? 'कुनै चाडपर्व वा बिदा भेटिएन' : 'No matching holidays found'}
             </div>
-            <div className="text-xs text-slate-400 dark:text-slate-500">
+            <div className="text-xs text-slate-500 dark:text-slate-400">
               {isNe ? 'कृपया खोज शब्द वा फिल्टर परिवर्तन गर्नुहोस्।' : 'Try changing your search query or filter.'}
             </div>
           </div>

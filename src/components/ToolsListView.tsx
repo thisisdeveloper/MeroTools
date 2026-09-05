@@ -309,7 +309,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
           className={`w-4 h-4 transition-colors ${
             isFavorite
               ? 'fill-amber-400 text-amber-500'
-              : 'text-slate-300 dark:text-slate-600 group-hover:text-slate-400'
+              : 'text-slate-500 dark:text-slate-600 group-hover:text-slate-600'
           }`}
         />
       </button>
@@ -348,7 +348,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
             </p>
           </div>
 
-          <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-400 group-hover:text-red-600 transition-colors">
+          <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-500 group-hover:text-red-600 transition-colors">
             <span>{isNe ? 'खोल्नुहोस्' : 'Open'}</span>
             <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </div>
@@ -391,7 +391,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
 
         <div className="flex items-center gap-1 shrink-0">
           {renderFavoriteButton(tool, idPrefix, 'p-1.5 -m-1.5')}
-          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all ml-1" />
+          <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all ml-1" />
         </div>
       </div>
     );
@@ -420,7 +420,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             id="tools-search-input"
             type="text"
@@ -436,7 +436,7 @@ export const ToolsListView: React.FC<ToolsListViewProps> = ({
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-slate-600 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg"
             >
               {isNe ? 'खाली' : 'Clear'}
             </button>

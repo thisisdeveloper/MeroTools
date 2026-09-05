@@ -62,7 +62,7 @@ export const EmiCalculator: React.FC<EmiCalculatorProps> = ({ language }) => {
           </div>
 
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">
               Rs.
             </span>
             <input
@@ -109,7 +109,7 @@ export const EmiCalculator: React.FC<EmiCalculatorProps> = ({ language }) => {
                 onChange={(e) => setRateStr(e.target.value)}
                 className="w-full px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">
                 %
               </span>
             </div>
@@ -131,7 +131,7 @@ export const EmiCalculator: React.FC<EmiCalculatorProps> = ({ language }) => {
                 onChange={(e) => setTenureYearsStr(e.target.value)}
                 className="w-full px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-semibold">
                 {language === 'ne' ? `${toNepaliDigits(tenureYears * 12)} महिना` : `${tenureYears * 12} Months`}
               </span>
             </div>
@@ -222,9 +222,9 @@ export const EmiCalculator: React.FC<EmiCalculatorProps> = ({ language }) => {
               <span>{t.amortization}</span>
             </div>
             {showSchedule ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
+              <ChevronUp className="w-4 h-4 text-slate-500" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <ChevronDown className="w-4 h-4 text-slate-500" />
             )}
           </button>
 

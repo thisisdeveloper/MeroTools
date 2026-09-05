@@ -162,7 +162,7 @@ export const SavedLoans: React.FC<SavedLoansProps> = ({ language }) => {
       {/* Empty State */}
       {filteredLoans.length === 0 && (
         <div className="p-8 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center space-y-2">
-          <Wallet className="w-8 h-8 mx-auto text-slate-400" />
+          <Wallet className="w-8 h-8 mx-auto text-slate-500" />
           <div className="font-bold text-slate-800 dark:text-slate-100">{t.noSavedLoans}</div>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             {t.noSavedLoansDesc}
@@ -323,7 +323,7 @@ export const SavedLoans: React.FC<SavedLoansProps> = ({ language }) => {
                   <button
                     id={`saved-loan-delete-btn-${loan.id}`}
                     onClick={() => setConfirmDeleteId(loan.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors ml-auto"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors ml-auto"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

@@ -144,7 +144,7 @@ export const DateConverter: React.FC<DateConverterProps> = ({ language }) => {
           <span className="font-bold text-red-600 dark:text-red-400">
             {language === 'ne' ? today.formattedBsNe : today.formattedBsEn}
           </span>
-          <span className="text-slate-400">|</span>
+          <span className="text-slate-500">|</span>
           <span className="text-slate-600 dark:text-slate-300">
             {language === 'ne' ? today.formattedAdNe : today.formattedAdEn}
           </span>

@@ -58,7 +58,7 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
     return (
       <div id="gold-silver-tool" className="space-y-6">
         <div className="p-8 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center space-y-3">
-          <AlertCircle className="w-8 h-8 mx-auto text-slate-400" />
+          <AlertCircle className="w-8 h-8 mx-auto text-slate-500" />
           <div className="font-bold text-slate-800 dark:text-slate-100">
             {t.ratesUnavailable}
           </div>
@@ -97,7 +97,7 @@ export const GoldSilverCalculator: React.FC<GoldSilverCalculatorProps> = ({
             >
               {isLive ? t.liveData : t.cachedData}
             </span>
-            <span className="text-slate-400">•</span>
+            <span className="text-slate-500">•</span>
             <span className="text-slate-600 dark:text-slate-300 text-xs">
               {t.lastUpdated}: {data.lastUpdated}
             </span>
