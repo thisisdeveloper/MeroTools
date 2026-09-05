@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronLeft, ListChecks, Plus, RotateCcw, Trash2, X, CheckCheck, CheckCircle2 } from 'lucide-react';
-import { Language, ShoppingListRecord } from '../../types';
+import { ADDate, Language, ShoppingListRecord } from '../../types';
 import { getTranslation } from '../../i18n/translations';
 import { formatNepaliCurrency } from '../../services/forex';
+import { getTodayDate } from '../../calendar/bsCalendar';
 import {
   getShoppingLists,
   createShoppingList,
-  renameShoppingList,
+  updateShoppingListDetails,
   deleteShoppingList,
   getItemsForList,
   addShoppingItem,
@@ -16,8 +17,11 @@ import {
   clearPurchasedItems,
   markAllItemsPurchased,
   getEstimatedTotal,
+  getDaysUntilPurchase,
+  formatPurchaseByStatus,
 } from '../../services/shoppingLists';
 import { getItemSuggestions, rememberItemUnit, findExactItemMatch } from '../../services/itemSuggestions';
+import { AdDatePicker } from '../AdDatePicker';
 
 interface ShoppingListsProps {
   language: Language;
@@ -49,6 +53,8 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
 
   const [showEditListModal, setShowEditListModal] = useState(false);
   const [editListTitle, setEditListTitle] = useState('');
+  const [editListNotes, setEditListNotes] = useState('');
+  const [editListPurchaseByDate, setEditListPurchaseByDate] = useState<ADDate | null>(null);
 
   const [showItemModal, setShowItemModal] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -87,9 +93,13 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
     setActiveListId(record.id);
   };
 
-  const handleRenameList = () => {
+  const handleSaveListDetails = () => {
     if (!activeList || !editListTitle.trim()) return;
-    renameShoppingList(activeList.id, editListTitle);
+    updateShoppingListDetails(activeList.id, {
+      title: editListTitle,
+      notes: editListNotes,
+      purchaseByDate: editListPurchaseByDate,
+    });
     refreshLists();
     setShowEditListModal(false);
   };
@@ -231,6 +241,8 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
             {lists.map((list) => {
               const listItems = getItemsForList(list.id);
               const remaining = listItems.filter((i) => !i.isPurchased).length;
+              const listTotal = getEstimatedTotal(listItems);
+              const purchaseDays = getDaysUntilPurchase(list, getTodayDate().ad);
               return (
                 <div
                   key={list.id}
@@ -239,11 +251,26 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                 >
                   <button onClick={() => setActiveListId(list.id)} className="flex-1 min-w-0 text-left">
                     <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">{list.title}</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      {isNe
-                        ? `${listItems.length} वस्तु · ${remaining} बाँकी`
-                        : `${listItems.length} item${listItems.length === 1 ? '' : 's'} · ${remaining} remaining`}
-                    </p>
+                    {list.notes && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{list.notes}</p>
+                    )}
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {isNe
+                          ? `${listItems.length} वस्तु · ${remaining} बाँकी`
+                          : `${listItems.length} item${listItems.length === 1 ? '' : 's'} · ${remaining} remaining`}
+                      </p>
+                      {listTotal > 0 && (
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          {formatNepaliCurrency(listTotal)}
+                        </span>
+                      )}
+                      {purchaseDays !== null && (
+                        <span className={`text-[11px] font-bold ${formatPurchaseByStatus(purchaseDays, isNe).colorClass}`}>
+                          {formatPurchaseByStatus(purchaseDays, isNe).text}
+                        </span>
+                      )}
+                    </div>
                   </button>
                   {confirmDeleteListId === list.id ? (
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -341,6 +368,8 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
         <button
           onClick={() => {
             setEditListTitle(activeList.title);
+            setEditListNotes(activeList.notes || '');
+            setEditListPurchaseByDate(activeList.purchaseByDate);
             setShowEditListModal(true);
           }}
           className="text-xs font-bold text-red-600 dark:text-red-400 shrink-0"
@@ -493,13 +522,65 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <input
-              type="text"
-              autoFocus
-              value={editListTitle}
-              onChange={(e) => setEditListTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
-            />
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                {isNe ? 'सूचीको नाम' : 'List name'}
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={editListTitle}
+                onChange={(e) => setEditListTitle(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                {isNe ? 'टिप्पणी (ऐच्छिक)' : 'Notes (optional)'}
+              </label>
+              <textarea
+                value={editListNotes}
+                onChange={(e) => setEditListNotes(e.target.value)}
+                rows={2}
+                placeholder={isNe ? 'जस्तै: साप्ताहिक किनमेल' : 'e.g. Weekly grocery run'}
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none resize-none"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  {isNe ? 'किन्ने अन्तिम मिति (ऐच्छिक)' : 'Purchase by date (optional)'}
+                </label>
+                {editListPurchaseByDate && (
+                  <button
+                    type="button"
+                    onClick={() => setEditListPurchaseByDate(null)}
+                    className="text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400"
+                  >
+                    {isNe ? 'हटाउनुहोस्' : 'Clear'}
+                  </button>
+                )}
+              </div>
+              {editListPurchaseByDate ? (
+                <AdDatePicker
+                  idPrefix="shopping-list-purchase-by"
+                  value={editListPurchaseByDate}
+                  onChange={setEditListPurchaseByDate}
+                  language={language}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditListPurchaseByDate(getTodayDate().ad)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  {isNe ? '+ मिति थप्नुहोस्' : '+ Set a date'}
+                </button>
+              )}
+            </div>
+
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowEditListModal(false)}
@@ -508,7 +589,7 @@ export const ShoppingLists: React.FC<ShoppingListsProps> = ({ language }) => {
                 {t.cancel}
               </button>
               <button
-                onClick={handleRenameList}
+                onClick={handleSaveListDetails}
                 disabled={!editListTitle.trim()}
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
               >

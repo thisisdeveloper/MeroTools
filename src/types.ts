@@ -275,6 +275,8 @@ export interface ReminderRecord {
 export interface ShoppingListRecord {
   id: string;
   title: string;
+  notes: string | null;
+  purchaseByDate: ADDate | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,4 +1,5 @@
-import { ShoppingItemRecord, ShoppingListRecord } from '../types';
+import { ADDate, ShoppingItemRecord, ShoppingListRecord } from '../types';
+import { toNepaliDigits } from '../calendar/bsCalendar';
 
 const LISTS_KEY = 'merotools_shopping_lists_v1';
 const ITEMS_KEY = 'merotools_shopping_items_v1';
@@ -36,6 +37,8 @@ export function createShoppingList(title: string): ShoppingListRecord {
   const record: ShoppingListRecord = {
     id: genId('list'),
     title: title.trim() || 'Untitled List',
+    notes: null,
+    purchaseByDate: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -45,11 +48,24 @@ export function createShoppingList(title: string): ShoppingListRecord {
   return record;
 }
 
-export function renameShoppingList(id: string, title: string): void {
+export interface ShoppingListDetailsPatch {
+  title?: string;
+  notes?: string | null;
+  purchaseByDate?: ADDate | null;
+}
+
+export function updateShoppingListDetails(id: string, patch: ShoppingListDetailsPatch): void {
   const lists = getShoppingLists();
   const idx = lists.findIndex((l) => l.id === id);
   if (idx === -1) return;
-  lists[idx] = { ...lists[idx], title: title.trim() || lists[idx].title, updatedAt: new Date().toISOString() };
+  const current = lists[idx];
+  lists[idx] = {
+    ...current,
+    title: patch.title !== undefined ? patch.title.trim() || current.title : current.title,
+    notes: patch.notes !== undefined ? patch.notes?.trim() || null : current.notes,
+    purchaseByDate: patch.purchaseByDate !== undefined ? patch.purchaseByDate : current.purchaseByDate,
+    updatedAt: new Date().toISOString(),
+  };
   writeJson(LISTS_KEY, lists);
 }
 
@@ -138,6 +154,34 @@ export function markAllItemsPurchased(listId: string): void {
     getShoppingItems().map((i) => (i.listId === listId ? { ...i, isPurchased: true, updatedAt: now } : i))
   );
   touchList(listId);
+}
+
+// Signed day count to a list's purchaseByDate — negative means overdue.
+// Plain epoch-day subtraction (UTC, no time-of-day/timezone drift), same
+// technique used for reminders in calculations/reminderOccurrence.ts.
+export function getDaysUntilPurchase(list: ShoppingListRecord, today: ADDate): number | null {
+  if (!list.purchaseByDate) return null;
+  const toEpochDay = (d: ADDate) => Date.UTC(d.year, d.month - 1, d.day) / 86400000;
+  return toEpochDay(list.purchaseByDate) - toEpochDay(today);
+}
+
+// Shared by the Shopping List tool page and the Home summary card — kept
+// here (not in either component) so both can import it without either
+// one statically pulling in the other (the tool page is a lazy-loaded
+// route chunk; importing from it would defeat that code-splitting).
+export function formatPurchaseByStatus(days: number, isNe: boolean): { text: string; colorClass: string } {
+  if (days < 0) {
+    return {
+      text: isNe ? `${toNepaliDigits(Math.abs(days))} दिन ढिलो भयो` : `${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} overdue`,
+      colorClass: 'text-red-600 dark:text-red-400',
+    };
+  }
+  if (days === 0) return { text: isNe ? 'आज सम्म' : 'Due today', colorClass: 'text-amber-600 dark:text-amber-400' };
+  if (days === 1) return { text: isNe ? 'भोलि सम्म' : 'Due tomorrow', colorClass: 'text-amber-600 dark:text-amber-400' };
+  return {
+    text: isNe ? `${toNepaliDigits(days)} दिनमा` : `Due in ${days} days`,
+    colorClass: 'text-slate-500 dark:text-slate-400',
+  };
 }
 
 // Estimated total: sum of entered prices only. Items with no price are
