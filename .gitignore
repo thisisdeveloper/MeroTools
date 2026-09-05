@@ -21,3 +21,5 @@ android/.idea/
 # the plugin source/patches (native-plugins/*/android, ios, dist, etc.)
 # should be committed; npm reinstalls this via the file: dependency.
 native-plugins/*/node_modules/
+native-plugins/*/.swiftpm/
+xcuserdata/
