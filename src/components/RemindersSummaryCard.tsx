@@ -134,7 +134,7 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
             </div>
             {reminder.notes && (
               <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                <span className="font-semibold">{isNe ? 'टिप्पणी:' : 'Notes:'}</span> {reminder.notes}
+                {reminder.notes}
               </div>
             )}
             {reminder.type === 'location' && reminder.location ? (

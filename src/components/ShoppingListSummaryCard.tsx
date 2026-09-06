@@ -84,7 +84,7 @@ export const ShoppingListSummaryCard: React.FC<ShoppingListSummaryCardProps> = (
                 </div>
                 {list.notes && (
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                    <span className="font-semibold">{isNe ? 'टिप्पणी:' : 'Notes:'}</span> {list.notes}
+                    {list.notes}
                   </div>
                 )}
                 <div className="flex items-center gap-2 flex-wrap mt-1">
