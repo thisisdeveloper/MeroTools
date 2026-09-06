@@ -121,6 +121,13 @@ export default function App() {
     }
   }, []);
 
+  // Preload an interstitial ad ahead of time so there's no loading delay
+  // whenever a tool-close happens to be the eligible one (see
+  // services/interstitialAdFrequency.ts for the frequency cap).
+  useEffect(() => {
+    import('./services/adMob').then(({ prepareInterstitial }) => prepareInterstitial().catch(() => {}));
+  }, []);
+
   const t = getTranslation(language);
 
   const handleOpenTool = (toolId: ToolId) => {
@@ -129,8 +136,23 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Closing a tool (not opening one) is the natural break point for an
+  // occasional interstitial — interrupting mid-entry on a calculator
+  // would be far more annoying than interrupting after the user is
+  // already done and heading back to the list.
   const handleBackToOverview = () => {
     setActiveTool(null);
+    import('./services/interstitialAdFrequency').then(
+      ({ recordToolClose, shouldShowInterstitial, markInterstitialShown }) => {
+        recordToolClose();
+        if (shouldShowInterstitial()) {
+          markInterstitialShown();
+          import('./services/adMob').then(({ showInterstitialIfReady }) => {
+            showInterstitialIfReady().catch(() => {});
+          });
+        }
+      }
+    );
   };
 
   // Swipe left/right cycles Home <-> Tools <-> Settings (clamped at the

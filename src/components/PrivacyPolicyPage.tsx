@@ -3,7 +3,7 @@ import { ShieldCheck, Globe } from 'lucide-react';
 import { NepalFlagWave } from './NepalFlagWave';
 import { Language } from '../types';
 
-const EFFECTIVE_DATE = 'September 6, 2026';
+const EFFECTIVE_DATE = 'September 7, 2026';
 const CONTACT_EMAIL = 'ysunilkumar2030@gmail.com';
 
 export const PrivacyPolicyPage: React.FC = () => {
@@ -77,7 +77,7 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <li>नाम, इमेल, फोन नम्बर, वा कुनै व्यक्तिगत परिचय जानकारी</li>
                 <li>खाता वा लगइन प्रणाली (कुनै पनि छैन)</li>
                 <li>तपाईंले क्यालकुलेटरमा हालेको रकम, जन्म मिति, तलब, वा अन्य निजी अंकहरू — यी सबै तपाईंको यन्त्रबाहिर कहिल्यै पठाइँदैन</li>
-                <li>विज्ञापन ट्र्याकिङ, एनालिटिक्स SDK, वा व्यवहार अनुगमन उपकरणहरू</li>
+                <li>तल "विज्ञापन" मा उल्लेख गरिएकोबाहेक अन्य व्यवहार विश्लेषण वा प्रयोग-ट्र्याकिङ SDK</li>
                 <li>क्यामेरा, माइक्रोफोन, वा कन्ट्याक्ट पहुँच</li>
               </ul>
             </Section>
@@ -100,6 +100,12 @@ export const PrivacyPolicyPage: React.FC = () => {
               </ul>
             </Section>
 
+            <Section title="विज्ञापन">
+              <p>
+                एपले कहिलेकाहीँ कुनै टूल बन्द गरेर सूचीमा फर्कँदा (Settings मा होइन) <strong>Google AdMob</strong> बाट आउने पूर्ण-स्क्रिन विज्ञापन देखाउन सक्छ — बारम्बार होइन, केवल केही समयको प्रयोगपछि र कम्तीमा केही मिनेटको फरकमा मात्र। AdMob को SDK ले विज्ञापन देखाउन र मापन गर्न, र तपाईंले अस्वीकार नगरेसम्म व्यक्तिगत बनाउन यन्त्र पहिचानकर्ता (जस्तै तपाईंको यन्त्रको advertising ID, वा iOS मा IDFA) र सामान्य प्राविधिक डेटा (एप संस्करण, यन्त्र मोडेल, देश/क्षेत्र जस्तो नजिकको स्थान) सङ्कलन गर्न सक्छ। iOS मा, कुनै पनि पहिचानकर्ता व्यक्तिगत विज्ञापनका लागि प्रयोग हुनुअघि एपले App Tracking Transparency अनुमति माग्नेछ — अस्वीकार गर्दा पनि विज्ञापन देखिन्छ, फरक यत्ति हो कि कम लक्षित हुन्छ। Android मा, तपाईं आफ्नो यन्त्रको Google Settings बाट advertising ID रिसेट वा व्यक्तिगत विज्ञापनबाट अप्ट-आउट गर्न सक्नुहुन्छ। AdMob ले यो डेटा कसरी ह्यान्डल गर्छ भनेर Google को आफ्नै गोपनीयता नीति हेर्नुहोस्: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-red-600 dark:text-red-400 font-semibold underline">policies.google.com/privacy</a>।
+              </p>
+            </Section>
+
             <Section title="तेस्रो-पक्ष स्रोतहरू">
               <p>
                 विदेशी मुद्रा (Forex) टूल खोल्दा, तपाईंको यन्त्रले सिधै <strong>नेपाल राष्ट्र बैंक (NRB)</strong> को सार्वजनिक API बाट ताजा दर लिन्छ। यो सिधा सम्पर्कमा तपाईंको यन्त्रको सामान्य नेटवर्क जानकारी (जस्तै IP ठेगाना) NRB लाई देखिन सक्छ, जुन तिनको आफ्नै नीति अनुसार हुन्छ — हामीसँग यो जानकारीमा कुनै पहुँच वा भण्डारण छैन। यदि यो अनुरोध असफल भयो भने, एपले पहिले नै भण्डारण गरिएको वा पूर्वनिर्धारित दर देखाउँछ।
@@ -111,7 +117,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             <Section title="अनुमतिहरू (Permissions)">
               <p>
-                एन्ड्रोइड संस्करणले सार्वजनिक दर जानकारी र ठाउँ खोज सुविधाका लागि <strong>इन्टरनेट</strong> अनुमति माग्छ। तपाईंले Location Reminder प्रयोग गर्नुभयो भने, यसले थप <strong>स्थान</strong> (foreground र background) र <strong>notification</strong> अनुमति पनि माग्छ — यो अनुमति तपाईंले Location Reminder थप्दा मात्र माग्छ, एप खोल्दा कहिल्यै होइन, र अरू कुनै सुविधाका लागि पनि होइन। एपले क्यामेरा, माइक्रोफोन, वा कन्ट्याक्ट पहुँच माग्दैन।
+                एन्ड्रोइड संस्करणले सार्वजनिक दर जानकारी, ठाउँ खोज सुविधा, र विज्ञापन देखाउनका लागि <strong>इन्टरनेट</strong> अनुमति माग्छ। तपाईंले Location Reminder प्रयोग गर्नुभयो भने, यसले थप <strong>स्थान</strong> (foreground र background) र <strong>notification</strong> अनुमति पनि माग्छ — यो अनुमति तपाईंले Location Reminder थप्दा मात्र माग्छ, एप खोल्दा कहिल्यै होइन, र अरू कुनै सुविधाका लागि पनि होइन। एपले क्यामेरा, माइक्रोफोन, वा कन्ट्याक्ट पहुँच माग्दैन।
               </p>
             </Section>
 
@@ -142,7 +148,7 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <li>Your name, email, phone number, or any personal identifying information</li>
                 <li>Accounts or logins — there are none</li>
                 <li>Values you enter into calculators (amounts, birth dates, salary figures, etc.) — these never leave your device</li>
-                <li>Advertising trackers, analytics SDKs, or behavioral monitoring</li>
+                <li>Behavioral analytics or usage-tracking SDKs beyond what's described in "Advertising" below</li>
                 <li>Camera, microphone, or contacts access</li>
               </ul>
             </Section>
@@ -165,6 +171,12 @@ export const PrivacyPolicyPage: React.FC = () => {
               </ul>
             </Section>
 
+            <Section title="Advertising">
+              <p>
+                The app may occasionally show a full-screen ad served by <strong>Google AdMob</strong> when you close a tool and return to the list (never on Settings) — not often, only after some active use and never more than once every few minutes. AdMob's SDK can collect device identifiers (such as your device's advertising ID, or IDFA on iOS) and general technical data (app version, device model, coarse location such as country/region) to serve and measure ads, and to personalize them unless you opt out. On iOS, the app will ask for App Tracking Transparency permission before any identifier is used for personalized ads — declining still shows ads, just less targeted. On Android, you can reset or opt out of ad personalization for your advertising ID in your device's Google Settings. See Google's own privacy policy for how AdMob handles this data: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-red-600 dark:text-red-400 font-semibold underline">policies.google.com/privacy</a>.
+              </p>
+            </Section>
+
             <Section title="Third-Party Sources">
               <p>
                 When you open the Forex tool, your device contacts <strong>Nepal Rastra Bank (NRB)</strong>'s public rate API directly to fetch current exchange rates. As with any direct network request, standard connection metadata (such as your IP address) may be visible to NRB under their own policies — we have no access to or storage of this information ourselves. If that request fails, the app falls back to a previously cached or default rate.
@@ -176,7 +188,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             <Section title="Permissions">
               <p>
-                The Android app requests the <strong>Internet</strong> permission to fetch public rate data and power place search. If you use Location Reminders, it additionally requests <strong>location</strong> (foreground and background) and <strong>notification</strong> permissions, each requested only when you add a location reminder — never on app launch, and never for any other feature. The app does not request camera, microphone, or contacts access.
+                The Android app requests the <strong>Internet</strong> permission to fetch public rate data, power place search, and show ads. If you use Location Reminders, it additionally requests <strong>location</strong> (foreground and background) and <strong>notification</strong> permissions, each requested only when you add a location reminder — never on app launch, and never for any other feature. The app does not request camera, microphone, or contacts access.
               </p>
             </Section>
 
