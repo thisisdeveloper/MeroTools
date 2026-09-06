@@ -66,12 +66,23 @@ final class GeofenceNotificationHelper {
             contentIntent = PendingIntent.getActivity(context, notificationIdCounter, launchIntent, flags);
         }
 
+        // Distinct triple-buzz pattern (vs. the single default buzz) so a
+        // geofence alert is harder to mistake for a routine notification —
+        // the strongest attention-grabbing option available without a
+        // full-screen intent (a much bigger, riskier change: needs its own
+        // manifest permission that Android 14+ requires the user to grant
+        // explicitly in Settings, and is really meant for incoming-call-
+        // style UI, not a personal reminder).
+        long[] vibrationPattern = { 0, 500, 250, 500, 250, 500 };
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(context.getApplicationInfo().icon)
             .setContentTitle(title.isEmpty() ? body : title)
             .setContentText(title.isEmpty() ? "" : body)
             .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVibrate(vibrationPattern)
             .setAutoCancel(true);
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent);
@@ -98,6 +109,12 @@ final class GeofenceNotificationHelper {
             NotificationManager.IMPORTANCE_HIGH
         );
         channel.setDescription("Alerts when you arrive at or leave a place you've set a reminder for.");
+        // A channel's vibration/importance can only be set at creation —
+        // Android doesn't let an app change it later via code once a
+        // channel with this ID already exists, only the user can (in
+        // system Settings). Only takes effect on a fresh install.
+        channel.enableVibration(true);
+        channel.setVibrationPattern(new long[] { 0, 500, 250, 500, 250, 500 });
         manager.createNotificationChannel(channel);
     }
 }
