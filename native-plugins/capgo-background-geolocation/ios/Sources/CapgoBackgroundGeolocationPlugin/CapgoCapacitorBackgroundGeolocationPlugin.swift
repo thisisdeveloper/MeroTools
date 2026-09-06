@@ -624,17 +624,26 @@ public class BackgroundGeolocation: CAPPlugin, CLLocationManagerDelegate, CAPBri
             return
         }
 
+        // User-facing Settings choice (services/locationNotificationSettings.ts),
+        // read out of the same geofence payload option addGeofence()
+        // already accepted upstream. Defaults to "alarm" so a geofence
+        // registered before this setting existed keeps the stronger
+        // behavior rather than silently going quiet.
+        let style = payload["style"] as? String ?? "alarm"
+
         let content = UNMutableNotificationContent()
         content.title = title.isEmpty ? body : title
         content.body = title.isEmpty ? "" : body
         content.sound = .default
-        // Strongest urgency iOS allows without the Critical Alerts
-        // entitlement (Apple grants that only for health/safety apps,
-        // and it's the only way to override a muted ringer/silent
-        // switch — not realistic to pursue for a reminders app). Time
-        // Sensitive still breaks through Focus/Do Not Disturb and is
-        // presented more insistently than a default notification.
-        content.interruptionLevel = .timeSensitive
+        if style != "alert" {
+            // Strongest urgency iOS allows without the Critical Alerts
+            // entitlement (Apple grants that only for health/safety apps,
+            // and it's the only way to override a muted ringer/silent
+            // switch — not realistic to pursue for a reminders app). Time
+            // Sensitive still breaks through Focus/Do Not Disturb and is
+            // presented more insistently than a default notification.
+            content.interruptionLevel = .timeSensitive
+        }
 
         let identifier = "geofence-\(data["identifier"] as? String ?? UUID().uuidString)-\(data["transition"] as? String ?? "")"
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: nil)

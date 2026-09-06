@@ -7,6 +7,7 @@
 
 import { BackgroundGeolocation } from '@capgo/background-geolocation';
 import { ReminderRecord } from '../types';
+import { getLocationNotificationStyle } from './locationNotificationSettings';
 
 let geofencingConfigured = false;
 
@@ -115,6 +116,13 @@ export async function registerGeofence(reminder: ReminderRecord): Promise<void> 
     payload: {
       title: reminder.title,
       body: reminder.notes || name,
+      // Read fresh on every register so a Settings change takes effect
+      // for new/edited reminders immediately — see
+      // reapplyLocationNotificationStyle for updating already-registered
+      // ones. The native side (GeofenceNotificationHelper.java /
+      // CapgoCapacitorBackgroundGeolocationPlugin.swift) reads this to
+      // decide how insistently to present the notification.
+      style: getLocationNotificationStyle(),
     },
   });
 }
@@ -124,6 +132,23 @@ export async function unregisterGeofence(reminderId: string): Promise<void> {
     await BackgroundGeolocation.removeGeofence({ identifier: reminderId });
   } catch {
     // Already gone (e.g. never successfully registered) — nothing to do.
+  }
+}
+
+// Unlike reconcileGeofences (which only fills in what's missing),
+// this force-refreshes every active location reminder's native
+// registration so a changed notification-style Setting applies right
+// away instead of waiting for the next edit/save or app-launch
+// reconcile that happens to skip already-monitored regions.
+export async function reapplyLocationNotificationStyle(reminders: ReminderRecord[]): Promise<void> {
+  const active = reminders.filter((r) => r.type === 'location' && r.location && !r.isCompleted);
+  for (const reminder of active) {
+    try {
+      await unregisterGeofence(reminder.id);
+      await registerGeofence(reminder);
+    } catch {
+      // Leave it be — the next app-launch reconcile will retry.
+    }
   }
 }
 

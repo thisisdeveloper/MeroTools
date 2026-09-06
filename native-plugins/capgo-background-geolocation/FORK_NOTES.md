@@ -88,6 +88,25 @@ native notification).
     can change that, in system Settings), so this only takes full effect
     on a fresh install.
 
+- **Fourth patch, both platforms**: added a Settings toggle
+  (`src/services/locationNotificationSettings.ts`, surfaced in
+  SettingsView) letting the user pick "Alarm" (the third-patch behavior
+  above) or a quieter "Alert". `registerGeofence` now reads that setting
+  into the geofence's payload (`style: "alarm" | "alert"`, default
+  `"alarm"` if absent so pre-existing geofences don't go quiet), and
+  `showTransitionNotification` on both platforms branches on it:
+  - iOS: `interruptionLevel = .timeSensitive` only when `style != "alert"`.
+  - Android: **two** channels (`location_reminders_alarm` /
+    `location_reminders_alert`), not one — a channel's vibration/
+    importance is locked in at creation on Android 8+ and can't be
+    changed per-notification afterward, so the Alarm/Alert choice needs
+    separate channel IDs to actually take effect, not just a different
+    `NotificationCompat.Builder` call against the same channel.
+  Changing the setting also force-refreshes every already-registered
+  location reminder's geofence (`reapplyLocationNotificationStyle` in
+  `services/geofences.ts`) so the new style applies immediately instead
+  of waiting for the next edit/save.
+
 ## Updating this fork later
 
 If you ever want to pull in a newer upstream version: diff this folder

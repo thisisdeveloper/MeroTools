@@ -251,6 +251,14 @@ export const TRANSLATIONS = {
     homePageItems: 'Home Page Items',
     homePageItemsDesc: 'Choose what shows up on your Home page',
     resetToDefault: 'Reset to Default',
+
+    // Location Reminder alert style
+    locationAlertStyle: 'Location Reminder Alerts',
+    locationAlertStyleDesc: 'How insistent the alert is when you arrive at or leave a place',
+    locationAlertStyleAlarm: 'Alarm',
+    locationAlertStyleAlarmDesc: 'Stronger vibration, breaks through Focus/Do Not Disturb',
+    locationAlertStyleAlert: 'Alert',
+    locationAlertStyleAlertDesc: 'A regular, quieter notification',
     homeCardDate: "Today's Date",
     homeCardForex: 'Nepal Forex Rates',
     homeCardGold: 'Gold & Silver Rates',
@@ -509,6 +517,14 @@ export const TRANSLATIONS = {
     homePageItems: 'गृहपृष्ठका वस्तुहरू',
     homePageItemsDesc: 'गृहपृष्ठमा के देखाउने भनी छान्नुहोस्',
     resetToDefault: 'पूर्वनिर्धारितमा फर्काउनुहोस्',
+
+    // Location Reminder alert style
+    locationAlertStyle: 'स्थान रिमाइन्डर अलर्ट',
+    locationAlertStyleDesc: 'कुनै ठाउँमा पुग्दा वा छोड्दा अलर्ट कति जोडदार होस्',
+    locationAlertStyleAlarm: 'अलार्म',
+    locationAlertStyleAlarmDesc: 'बलियो कम्पन, Focus/Do Not Disturb हुँदा पनि देखिन्छ',
+    locationAlertStyleAlert: 'सामान्य सूचना',
+    locationAlertStyleAlertDesc: 'सामान्य, शान्त सूचना',
     homeCardDate: 'आजको मिति',
     homeCardForex: 'नेपाल विनिमय दर',
     homeCardGold: 'सुन तथा चाँदीको दर',

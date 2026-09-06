@@ -16,10 +16,17 @@ import {
   ListChecks,
   RotateCcw,
   Cake,
+  MapPin,
 } from 'lucide-react';
 import { HomeCardId, Language, ThemeMode } from '../types';
 import { getTranslation } from '../i18n/translations';
 import { getHomeSettings, setHomeCardEnabled, resetHomeSettings } from '../services/homeSettings';
+import {
+  getLocationNotificationStyle,
+  setLocationNotificationStyle,
+  LocationNotificationStyle,
+} from '../services/locationNotificationSettings';
+import { getReminders } from '../services/reminders';
 import { ToggleSwitch } from './ToggleSwitch';
 
 interface SettingsViewProps {
@@ -38,6 +45,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const t = getTranslation(language);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
   const [homeSettings, setHomeSettingsState] = useState(() => getHomeSettings());
+  const [locationAlertStyle, setLocationAlertStyleState] = useState<LocationNotificationStyle>(() =>
+    getLocationNotificationStyle()
+  );
 
   const homeCards: { id: HomeCardId; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'date', label: t.homeCardDate, icon: CalendarDays },
@@ -55,6 +65,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const handleResetHomeSettings = () => {
     setHomeSettingsState(resetHomeSettings());
+  };
+
+  const handleChangeLocationAlertStyle = (style: LocationNotificationStyle) => {
+    setLocationAlertStyleState(style);
+    setLocationNotificationStyle(style);
+    // Dynamically imported — this is the only place in Settings that
+    // needs the native geofencing plugin bridge, and only when the user
+    // actually changes this setting, so it doesn't get pulled into
+    // Settings' own eagerly-loaded bundle otherwise.
+    import('../services/geofences').then(({ reapplyLocationNotificationStyle }) =>
+      reapplyLocationNotificationStyle(getReminders()).catch(() => {})
+    );
   };
 
   const openPrivacyPolicy = () => {
@@ -205,6 +227,67 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               />
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Location Reminder Alert Style */}
+      <div className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3.5">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+              {t.locationAlertStyle}
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{t.locationAlertStyleDesc}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            id="location-alert-style-alarm-btn"
+            onClick={() => handleChangeLocationAlertStyle('alarm')}
+            className={`p-3.5 rounded-2xl border flex flex-col items-start gap-1 text-left transition-all ${
+              locationAlertStyle === 'alarm'
+                ? 'border-red-600 bg-red-50/70 dark:bg-red-950/40 ring-2 ring-red-500/20 shadow-sm'
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+            }`}
+          >
+            <span
+              className={`text-xs sm:text-sm font-bold ${
+                locationAlertStyle === 'alarm'
+                  ? 'text-red-700 dark:text-red-300'
+                  : 'text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              {t.locationAlertStyleAlarm}
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              {t.locationAlertStyleAlarmDesc}
+            </span>
+          </button>
+
+          <button
+            id="location-alert-style-alert-btn"
+            onClick={() => handleChangeLocationAlertStyle('alert')}
+            className={`p-3.5 rounded-2xl border flex flex-col items-start gap-1 text-left transition-all ${
+              locationAlertStyle === 'alert'
+                ? 'border-red-600 bg-red-50/70 dark:bg-red-950/40 ring-2 ring-red-500/20 shadow-sm'
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+            }`}
+          >
+            <span
+              className={`text-xs sm:text-sm font-bold ${
+                locationAlertStyle === 'alert'
+                  ? 'text-red-700 dark:text-red-300'
+                  : 'text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              {t.locationAlertStyleAlert}
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              {t.locationAlertStyleAlertDesc}
+            </span>
+          </button>
         </div>
       </div>
 
