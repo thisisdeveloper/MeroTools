@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Language } from '../../types';
 import {
   BS_MONTHS_EN,
@@ -10,7 +10,8 @@ import {
   toNepaliDigits,
   getTodayDate,
 } from '../../calendar/bsCalendar';
-import { NEPAL_HOLIDAYS_LIST, NepalHoliday } from '../../data/holidaysData';
+import { NepalHoliday } from '../../data/holidaysData';
+import { getCachedHolidays, fetchLiveHolidays } from '../../services/holidaysSync';
 import { Calendar, ChevronLeft, ChevronRight, Sparkles, Flag, Clock } from 'lucide-react';
 
 interface NepaliCalendarProps {
@@ -21,9 +22,14 @@ export const NepaliCalendar: React.FC<NepaliCalendarProps> = ({ language }) => {
   const isNe = language === 'ne';
   const today = useMemo(() => getTodayDate(), []);
 
+  const [holidays, setHolidays] = useState<NepalHoliday[]>(() => getCachedHolidays());
   const [selectedYear, setSelectedYear] = useState<number>(today.bs.year);
   const [selectedMonth, setSelectedMonth] = useState<number>(today.bs.month); // 1-12
   const [selectedDay, setSelectedDay] = useState<number | null>(today.bs.day);
+
+  useEffect(() => {
+    fetchLiveHolidays().then(setHolidays);
+  }, []);
 
   // Month navigation
   const handlePrevMonth = () => {
@@ -75,7 +81,7 @@ export const NepaliCalendar: React.FC<NepaliCalendarProps> = ({ language }) => {
       const conv = bsToAd({ year: selectedYear, month: selectedMonth, day: d });
       // Check if this day is a holiday
       const bsStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const holiday = NEPAL_HOLIDAYS_LIST.find((h) => h.bsDate === bsStr);
+      const holiday = holidays.find((h) => h.bsDate === bsStr);
       const isSaturday = conv.dayOfWeek === 6;
 
       days.push({
@@ -100,27 +106,27 @@ export const NepaliCalendar: React.FC<NepaliCalendarProps> = ({ language }) => {
         bsToAd({ year: selectedYear, month: selectedMonth, day: totalDays }).formattedAdEn
       }`,
     };
-  }, [selectedYear, selectedMonth, today]);
+  }, [selectedYear, selectedMonth, today, holidays]);
 
   // Holidays in this month
   const monthHolidays = useMemo(() => {
-    return NEPAL_HOLIDAYS_LIST.filter(
+    return holidays.filter(
       (h) => h.bsYear === selectedYear && h.bsMonth === selectedMonth
     );
-  }, [selectedYear, selectedMonth]);
+  }, [holidays, selectedYear, selectedMonth]);
 
   // Selected Day Details
   const selectedDayInfo = useMemo(() => {
     if (!selectedDay) return null;
     const conv = bsToAd({ year: selectedYear, month: selectedMonth, day: selectedDay });
     const bsStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
-    const holiday = NEPAL_HOLIDAYS_LIST.find((h) => h.bsDate === bsStr);
+    const holiday = holidays.find((h) => h.bsDate === bsStr);
 
     return {
       conv,
       holiday,
     };
-  }, [selectedYear, selectedMonth, selectedDay]);
+  }, [selectedYear, selectedMonth, selectedDay, holidays]);
 
   return (
     <div id="nepali-calendar-tool" className="space-y-6">

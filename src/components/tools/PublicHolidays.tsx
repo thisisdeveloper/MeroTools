@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Language } from '../../types';
-import { NEPAL_HOLIDAYS_LIST, NepalHoliday } from '../../data/holidaysData';
+import { NepalHoliday } from '../../data/holidaysData';
+import { getCachedHolidays, fetchLiveHolidays } from '../../services/holidaysSync';
 import { toNepaliDigits, getTodayDate, BS_MONTHS_EN, BS_MONTHS_NE } from '../../calendar/bsCalendar';
 import { Search, Filter, Calendar, Flag, Sparkles, Clock, CheckCircle2 } from 'lucide-react';
 
@@ -12,13 +13,20 @@ export const PublicHolidays: React.FC<PublicHolidaysProps> = ({ language }) => {
   const isNe = language === 'ne';
   const today = useMemo(() => getTodayDate(), []);
 
+  const [holidays, setHolidays] = useState<NepalHoliday[]>(() => getCachedHolidays());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedMonthFilter, setSelectedMonthFilter] = useState<string>('all');
 
+  // Refresh from the backend once per visit — falls back silently to the
+  // cached/bundled list above if the sync fails (offline, backend down).
+  useEffect(() => {
+    fetchLiveHolidays().then(setHolidays);
+  }, []);
+
   // Filtered Holidays List
   const filteredList = useMemo(() => {
-    return NEPAL_HOLIDAYS_LIST.filter((holiday) => {
+    return holidays.filter((holiday) => {
       // Category filter
       if (selectedCategory !== 'all' && holiday.category !== selectedCategory) {
         return false;
@@ -42,7 +50,7 @@ export const PublicHolidays: React.FC<PublicHolidaysProps> = ({ language }) => {
 
       return true;
     });
-  }, [searchQuery, selectedCategory, selectedMonthFilter]);
+  }, [holidays, searchQuery, selectedCategory, selectedMonthFilter]);
 
   // Categories config
   const categories = [

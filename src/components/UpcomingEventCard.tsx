@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PartyPopper, ArrowRight } from 'lucide-react';
 import { ToolId, Language } from '../types';
 import { getTodayDate, toNepaliDigits } from '../calendar/bsCalendar';
-import { NEPAL_HOLIDAYS_LIST } from '../data/holidaysData';
+import { getCachedHolidays } from '../services/holidaysSync';
 import { getNextUpcomingHoliday } from '../calculations/upcomingHoliday';
 
 interface UpcomingEventCardProps {
@@ -16,7 +16,8 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
 }) => {
   const isNe = language === 'ne';
   const today = getTodayDate();
-  const upcoming = getNextUpcomingHoliday(NEPAL_HOLIDAYS_LIST, today);
+  const holidays = useMemo(() => getCachedHolidays(), []);
+  const upcoming = getNextUpcomingHoliday(holidays, today);
 
   if (!upcoming) return null;
 
