@@ -79,7 +79,8 @@ export function computeLoanAsOfToday(loan: SavedLoanRecord): CompoundInterestRes
     loan.frequency,
     loan.regularDeposit,
     loan.regularDepositFrequency,
-    diff.days
+    diff.days,
+    diff.totalDays
   );
 }
 

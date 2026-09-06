@@ -29,14 +29,28 @@ export function calculateCompoundInterest(
   frequency: CompoundingFrequency = 'annual',
   regularDeposit: number = 0,
   regularDepositFrequency: 'monthly' | 'yearly' = 'monthly',
-  days: number = 0
+  days: number = 0,
+  // Exact elapsed days between two real calendar dates, when the tenure
+  // came from a date range (e.g. a loan's start date to today) rather
+  // than freeform manual entry. years+months/12+days/365 treats every
+  // month as a fixed 30.44 days, which doesn't match the real number of
+  // days actually spanned (28-31 depending which months) — over a
+  // several-month span that mismatch is a few days' worth of extra or
+  // missing interest. Pass this whenever a real totalDays is available
+  // (see calculateDateDiffAd's totalDays) to compute the year-fraction
+  // precisely instead. Manual duration entry has no calendar anchor to
+  // be exact about, so it's left on the approximate calculation.
+  exactTotalDays?: number
 ): CompoundInterestResult {
   const safeP = Math.max(0, principal || 0);
   const safeRate = Math.max(0, annualRatePct || 0);
   const safeYears = Math.max(0, years || 0);
   const safeMonths = Math.max(0, months || 0);
   const safeDays = Math.max(0, days || 0);
-  const totalYears = safeYears + safeMonths / 12 + safeDays / 365;
+  const totalYears =
+    exactTotalDays !== undefined && exactTotalDays >= 0
+      ? exactTotalDays / 365
+      : safeYears + safeMonths / 12 + safeDays / 365;
   const safeDeposit = Math.max(0, regularDeposit || 0);
 
   const n = getCompoundingFrequencyCount(frequency);
@@ -63,24 +77,37 @@ export function calculateCompoundInterest(
 
   // Generate Year-by-Year Schedule
   const yearlySchedule: CompoundInterestYearlySchedule[] = [];
-  let currentBalance = safeP;
-  let cumulativePrincipal = safeP;
   const totalRoundedYears = Math.max(1, Math.ceil(totalYears));
 
-  // Monthly breakdown simulation for accuracy
-  const totalMonths = Math.round(totalYears * 12);
+  // Monthly breakdown simulation for accuracy. totalMonthsExact is almost
+  // never a whole number (e.g. 6.77 for "6 months 25 days") — rounding it
+  // to the nearest integer month (the old behavior) silently snaps any
+  // period to the nearest whole month, which for a period like 15 days
+  // rounds DOWN to 0 months and reports zero interest, and elsewhere
+  // makes the "interest till today" figure stay frozen for 2-3 weeks at a
+  // stretch since many different day-counts round to the same month
+  // count. Instead, simulate whileMonths full months as before, then
+  // apply one final partial-period growth step (no deposit — a deposit
+  // schedule doesn't get a pro-rated contribution for a partial period)
+  // for whatever fraction of a month is left over, so every extra day
+  // actually moves the number.
+  const totalMonthsExact = totalYears * 12;
+  const EPSILON = 1e-9;
+  const wholeMonths = Math.floor(totalMonthsExact + EPSILON);
+  const fractionalMonth = Math.max(0, totalMonthsExact - wholeMonths);
   let totalDeposited = safeP;
 
   // Track monthly balances
   let runningBal = safeP;
   const monthlyRatePerPeriod = r / n;
-  
+  const monthlyCompoundingFactor = Math.pow(1 + monthlyRatePerPeriod, n / 12);
+
   // Calculate yearly schedule milestones
   let yearOpening = safeP;
   let yearContribution = 0;
   let yearInterest = 0;
 
-  for (let m = 1; m <= totalMonths; m++) {
+  for (let m = 1; m <= wholeMonths; m++) {
     // Add deposit at start/during month
     if (safeDeposit > 0) {
       if (regularDepositFrequency === 'monthly') {
@@ -95,18 +122,17 @@ export function calculateCompoundInterest(
     }
 
     // Apply compounding for 1 month (1/12th of year)
-    // Monthly effective factor
-    const monthlyCompoundingFactor = Math.pow(1 + monthlyRatePerPeriod, n / 12);
     const balanceAfterGrowth = runningBal * monthlyCompoundingFactor;
     const interestThisMonth = balanceAfterGrowth - runningBal;
     yearInterest += interestThisMonth;
     runningBal = balanceAfterGrowth;
 
-    // At end of each full year or final month
-    if (m % 12 === 0 || m === totalMonths) {
-      const yearIndex = Math.ceil(m / 12);
+    // At end of each full year — the very last whole month only closes
+    // the schedule here if there's no partial period left to fold in.
+    const isLastWholeMonth = m === wholeMonths && fractionalMonth <= EPSILON;
+    if (m % 12 === 0 || isLastWholeMonth) {
       yearlySchedule.push({
-        year: yearIndex,
+        year: Math.ceil(m / 12),
         openingBalance: yearOpening,
         annualContribution: yearContribution,
         interestEarned: yearInterest,
@@ -120,6 +146,26 @@ export function calculateCompoundInterest(
     }
   }
 
+  // Partial final period — the leftover days that don't add up to a full
+  // month (e.g. the 25 days after 6 whole months, or the entirety of a
+  // brand-new 15-day-old loan where wholeMonths is 0).
+  if (fractionalMonth > EPSILON) {
+    const partialCompoundingFactor = Math.pow(1 + monthlyRatePerPeriod, (n / 12) * fractionalMonth);
+    const balanceAfterGrowth = runningBal * partialCompoundingFactor;
+    const interestThisPeriod = balanceAfterGrowth - runningBal;
+    yearInterest += interestThisPeriod;
+    runningBal = balanceAfterGrowth;
+
+    yearlySchedule.push({
+      year: Math.ceil((wholeMonths + 1) / 12),
+      openingBalance: yearOpening,
+      annualContribution: yearContribution,
+      interestEarned: yearInterest,
+      closingBalance: runningBal,
+      totalInvested: totalDeposited,
+    });
+  }
+
   const maturityAmount = runningBal;
   const totalInterest = Math.max(0, maturityAmount - totalDeposited);
 
@@ -128,7 +174,7 @@ export function calculateCompoundInterest(
   const simpleInterestDeposits =
     safeDeposit > 0
       ? (regularDepositFrequency === 'monthly'
-          ? (safeDeposit * totalMonths * r * totalYears) / 2
+          ? (safeDeposit * Math.round(totalMonthsExact) * r * totalYears) / 2
           : (safeDeposit * totalRoundedYears * r * totalYears) / 2)
       : 0;
   const simpleInterestComparison = simpleInterestPrincipal + simpleInterestDeposits;

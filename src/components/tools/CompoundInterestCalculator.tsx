@@ -63,6 +63,12 @@ export const CompoundInterestCalculator: React.FC<CompoundInterestCalculatorProp
   const [yearsStr, setYearsStr] = useState<string>('5');
   const [monthsStr, setMonthsStr] = useState<string>('0');
   const [daysStr, setDaysStr] = useState<string>('0');
+  // Exact elapsed days when tenure comes from a real date range — kept
+  // alongside the editable Y/M/D strings above so the interest math can
+  // use the precise day count instead of treating every month as a fixed
+  // 30.44 days (see calculateCompoundInterest's exactTotalDays param).
+  // undefined in 'duration' mode, where there's no real dates to be exact about.
+  const [exactTenureDays, setExactTenureDays] = useState<number | undefined>(undefined);
   const [frequency, setFrequency] = useState<CompoundingFrequency>('annual');
 
   // Tenure can be entered directly, or derived from a start/end date pair
@@ -134,7 +140,10 @@ export const CompoundInterestCalculator: React.FC<CompoundInterestCalculatorProp
   // already counts the span once (it never double-counts the disbursement
   // or collection day), which matches standard banking day-count practice.
   useEffect(() => {
-    if (tenureMode !== 'dates') return;
+    if (tenureMode !== 'dates') {
+      setExactTenureDays(undefined);
+      return;
+    }
     const diff =
       dateCalendarType === 'BS'
         ? calculateDateDiffBs(
@@ -148,6 +157,7 @@ export const CompoundInterestCalculator: React.FC<CompoundInterestCalculatorProp
     setYearsStr(String(diff.years));
     setMonthsStr(String(diff.months));
     setDaysStr(String(diff.days));
+    setExactTenureDays(diff.totalDays);
   }, [
     tenureMode,
     dateCalendarType,
@@ -175,9 +185,10 @@ export const CompoundInterestCalculator: React.FC<CompoundInterestCalculatorProp
       frequency,
       deposit,
       depositFreq,
-      days
+      days,
+      exactTenureDays
     );
-  }, [principal, rate, years, months, days, frequency, deposit, depositFreq]);
+  }, [principal, rate, years, months, days, frequency, deposit, depositFreq, exactTenureDays]);
 
   // Visual bar percentages
   const principalPct = result.maturityAmount > 0 ? (result.totalDeposit / result.maturityAmount) * 100 : 100;
