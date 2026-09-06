@@ -12,7 +12,7 @@ const STORAGE_KEY = 'merotools_interstitial_ad_v1';
 const TOOL_CLOSE_THRESHOLD = 5;
 // Even if a user rapidly opens/closes tools and hits the threshold
 // quickly, never show ads more often than this.
-const MIN_COOLDOWN_MINUTES = 4;
+const MIN_COOLDOWN_MINUTES = 2;
 
 interface InterstitialAdState {
   toolCloseCount: number;
