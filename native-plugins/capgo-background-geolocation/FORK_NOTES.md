@@ -46,9 +46,27 @@ behavior is untouched) and no-op if a geofence's payload has no
 Reminder geofence too, if the app ever adds one that doesn't want a
 native notification).
 
+- **iOS, second patch**: the app tested a real geofence transition and
+  got no notification at all, despite location permission being granted
+  and the transition presumably firing. Root cause: `requestPermissions`
+  only ever requests/reports `CLLocationManager` authorization —
+  `UNUserNotificationCenter` (the completely separate system that
+  actually gates whether `showTransitionNotification`'s scheduled
+  notification is allowed to display) was never being requested at all,
+  on either the upstream plugin or in this fork's first patch above. The
+  app was therefore never authorized to show notifications, so
+  `UNUserNotificationCenter.current().add(request)` silently succeeded
+  at scheduling while iOS suppressed the actual display. Fixed by adding
+  a `UNUserNotificationCenter.current().requestAuthorization(...)` call
+  inside `requestPermissions` whenever the JS side's `permissions` array
+  includes `"notification"` (which `services/geofences.ts`'s
+  `requestLocationPermission()` already passes) — fired in parallel with
+  the location request, best-effort, and doesn't change the resolved
+  permission dictionary's shape.
+
 ## Updating this fork later
 
 If you ever want to pull in a newer upstream version: diff this folder
 against a fresh `npm view @capgo/background-geolocation@<version>
-dist.tarball` download, and re-apply the two changes above (search for
+dist.tarball` download, and re-apply the changes above (search for
 "FORK ADDITION" in both native source files).

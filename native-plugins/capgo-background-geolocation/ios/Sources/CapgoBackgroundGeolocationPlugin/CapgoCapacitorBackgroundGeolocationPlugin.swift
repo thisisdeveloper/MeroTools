@@ -1016,6 +1016,25 @@ public class BackgroundGeolocation: CAPPlugin, CLLocationManagerDelegate, CAPBri
                 "backgroundLocation",
                 "notification"
             ]
+
+            // FORK ADDITION (see FORK_NOTES.md): the upstream plugin only
+            // ever requests/reports CLLocationManager authorization here —
+            // iOS notification permission (UNUserNotificationCenter) is a
+            // completely separate system and was never being requested at
+            // all, so showTransitionNotification's geofence-triggered
+            // local notification would silently never display, since the
+            // app was never authorized to show notifications in the first
+            // place. Fired in parallel, best-effort: doesn't block or
+            // change the resolved location permission dictionary below,
+            // and is a no-op if already authorized/denied.
+            if permissions.contains("notification") {
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
+                    if let error = error {
+                        print("[CapgoBackgroundGeolocation] Notification authorization request failed: \(error.localizedDescription)")
+                    }
+                }
+            }
+
             let requestBackground = permissions.contains("backgroundLocation")
             let requestLocation = permissions.contains("location") || requestBackground
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, ArrowRight, CheckCircle2, Trash2, AlertTriangle } from 'lucide-react';
+import { Bell, ArrowRight, CheckCircle2, Trash2, AlertTriangle, MapPin } from 'lucide-react';
 import { ToolId, Language, ReminderRecord } from '../types';
 import { getTodayDate, toNepaliDigits } from '../calendar/bsCalendar';
 import { getTranslation } from '../i18n/translations';
@@ -28,6 +28,7 @@ function dayLabel(days: number, isNe: boolean): string {
 
 const TODAY_ROW_CAP = 3;
 const UPCOMING_ROW_CAP = 3;
+const LOCATION_ROW_CAP = 3;
 
 export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ language, onSelectTool }) => {
   const t = getTranslation(language);
@@ -41,7 +42,13 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
 
   const todayItems = getTodayReminders(reminders, today);
   const upcomingItems = getUpcomingReminders(reminders, today);
-  const isEmpty = todayItems.length === 0 && upcomingItems.length === 0;
+  // Location reminders have no date — getDaysUntil returns null for them,
+  // so the date-based lists above never include them even though they're
+  // just as "active" (waiting on a geofence trigger, not a calendar day).
+  const locationItems = reminders.filter(
+    (r) => r.type === 'location' && r.location && !r.isCompleted
+  );
+  const isEmpty = todayItems.length === 0 && upcomingItems.length === 0 && locationItems.length === 0;
 
   const handleComplete = (id: string) => {
     toggleReminderCompleted(id);
@@ -50,6 +57,13 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
 
   const handleDelete = (id: string) => {
     deleteReminder(id);
+    // Dynamically imported so Home's eager bundle doesn't pull in the
+    // native geofencing plugin bridge just for the rare case of deleting
+    // a location reminder from here — see services/geofences.ts's own
+    // note on why that plugin needs to stay inside Reminders' lazy chunk.
+    import('../services/geofences').then(({ unregisterGeofence }) =>
+      unregisterGeofence(id).catch(() => {})
+    );
     setConfirmDeleteId(null);
     refresh();
   };
@@ -88,7 +102,7 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
       );
     }
 
-    const canComplete = reminder.repeat === 'none';
+    const canComplete = reminder.repeat === 'none' && reminder.type !== 'location';
 
     return (
       <SwipeableRow
@@ -123,12 +137,26 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
                 <span className="font-semibold">{isNe ? 'टिप्पणी:' : 'Notes:'}</span> {reminder.notes}
               </div>
             )}
-            <div className={`text-sm font-extrabold truncate ${meta.accentText}`}>
-              {dayLabel(days, isNe)}
-              {reminder.time && (
-                <span className="font-semibold"> · {formatTime12h(reminder.time, isNe)}</span>
-              )}
-            </div>
+            {reminder.type === 'location' && reminder.location ? (
+              <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                <span className="text-xs font-extrabold text-violet-700 dark:text-violet-400 flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {reminder.location.trigger === 'enter'
+                    ? isNe ? 'आइपुग्दा' : 'On arrival'
+                    : isNe ? 'छोड्दा' : 'On leaving'}
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                  {reminder.location.name} · {reminder.location.radiusMeters}m
+                </span>
+              </div>
+            ) : (
+              <div className={`text-sm font-extrabold truncate ${meta.accentText}`}>
+                {dayLabel(days, isNe)}
+                {reminder.time && (
+                  <span className="font-semibold"> · {formatTime12h(reminder.time, isNe)}</span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </SwipeableRow>
@@ -183,6 +211,22 @@ export const RemindersSummaryCard: React.FC<RemindersSummaryCardProps> = ({ lang
               {isNe
                 ? `+${toNepaliDigits(upcomingItems.length - UPCOMING_ROW_CAP)} थप`
                 : `+${upcomingItems.length - UPCOMING_ROW_CAP} more`}
+            </div>
+          )}
+        </div>
+      )}
+
+      {locationItems.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-[10px] font-bold tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            {isNe ? 'स्थान रिमाइन्डर' : 'Location'}
+          </div>
+          {locationItems.slice(0, LOCATION_ROW_CAP).map((r) => renderRow(r, 0))}
+          {locationItems.length > LOCATION_ROW_CAP && (
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 px-1">
+              {isNe
+                ? `+${toNepaliDigits(locationItems.length - LOCATION_ROW_CAP)} थप`
+                : `+${locationItems.length - LOCATION_ROW_CAP} more`}
             </div>
           )}
         </div>
