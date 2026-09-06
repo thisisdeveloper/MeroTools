@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Cake,
   MapPin,
+  Star,
 } from 'lucide-react';
 import { HomeCardId, Language, ThemeMode } from '../types';
 import { getTranslation } from '../i18n/translations';
@@ -82,6 +83,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const openPrivacyPolicy = () => {
     window.location.hash = 'privacy';
     window.location.reload();
+  };
+
+  const handleRateUs = () => {
+    // Dynamically imported — pulls in the native review plugin + Browser
+    // plugin only when the user actually taps this, not as part of
+    // Settings' own eager bundle.
+    import('../services/appReview').then(({ rateApp }) => rateApp().catch(() => {}));
   };
 
   return (
@@ -289,6 +297,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </span>
           </button>
         </div>
+      </div>
+
+      {/* Rate Us Section */}
+      <div className="p-6 rounded-[2rem] bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/60 dark:border-amber-900/40 shadow-sm">
+        <button id="rate-us-btn" onClick={handleRateUs} className="w-full flex items-center gap-3.5 text-left">
+          <div className="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
+            <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{t.rateUs}</div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{t.rateUsDesc}</div>
+          </div>
+        </button>
       </div>
 
       {/* Legal & Policy Section */}

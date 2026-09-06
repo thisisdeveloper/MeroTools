@@ -259,6 +259,19 @@ export const TRANSLATIONS = {
     locationAlertStyleAlarmDesc: 'Stronger vibration, breaks through Focus/Do Not Disturb',
     locationAlertStyleAlert: 'Alert',
     locationAlertStyleAlertDesc: 'A regular, quieter notification',
+
+    // Rate app prompt
+    rateAppTitle: 'Enjoying Mero Tools?',
+    rateAppDesc: 'Your feedback helps us keep improving the app for everyone in Nepal.',
+    rateAppYes: 'Yes, I love it!',
+    rateAppNo: 'Not really',
+    rateAppLater: 'Maybe later',
+    rateAppFeedbackPrompt: "Sorry to hear that — mind telling us what's wrong?",
+    rateAppSendFeedback: 'Send Feedback',
+    rateAppClose: 'Close',
+    rateUs: 'Rate Us',
+    rateUsDesc: 'Enjoying the app? A quick rating helps a lot.',
+
     homeCardDate: "Today's Date",
     homeCardForex: 'Nepal Forex Rates',
     homeCardGold: 'Gold & Silver Rates',
@@ -525,6 +538,18 @@ export const TRANSLATIONS = {
     locationAlertStyleAlarmDesc: 'बलियो कम्पन, Focus/Do Not Disturb हुँदा पनि देखिन्छ',
     locationAlertStyleAlert: 'सामान्य सूचना',
     locationAlertStyleAlertDesc: 'सामान्य, शान्त सूचना',
+
+    // Rate app prompt
+    rateAppTitle: 'मेरो टूल्स प्रयोग गर्दा कस्तो लाग्यो?',
+    rateAppDesc: 'तपाईंको प्रतिक्रियाले नेपालका सबैका लागि एपलाई अझ राम्रो बनाउन मद्दत गर्छ।',
+    rateAppYes: 'धेरै मन पर्यो!',
+    rateAppNo: 'त्यति राम्रो लागेन',
+    rateAppLater: 'पछि सोध्नुहोस्',
+    rateAppFeedbackPrompt: 'माफ गर्नुहोस् — के समस्या भयो भन्न सक्नुहुन्छ?',
+    rateAppSendFeedback: 'प्रतिक्रिया पठाउनुहोस्',
+    rateAppClose: 'बन्द गर्नुहोस्',
+    rateUs: 'हामीलाई रेट गर्नुहोस्',
+    rateUsDesc: 'एप मन परेको छ? छोटो रेटिङले धेरै सहयोग गर्छ।',
     homeCardDate: 'आजको मिति',
     homeCardForex: 'नेपाल विनिमय दर',
     homeCardGold: 'सुन तथा चाँदीको दर',

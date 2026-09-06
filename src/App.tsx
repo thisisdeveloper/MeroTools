@@ -4,9 +4,11 @@ import { BottomNav } from './components/BottomNav';
 import { HomeView } from './components/HomeView';
 import { ToolsListView } from './components/ToolsListView';
 import { SettingsView } from './components/SettingsView';
+import { RateAppModal } from './components/RateAppModal';
 import { TabId, ToolId, Language, ThemeMode } from './types';
 import { getTranslation } from './i18n/translations';
 import { recordToolUsage } from './services/toolUsage';
+import { recordAppLaunch, shouldShowRatePrompt } from './services/rateAppPrompt';
 import { useHorizontalSwipe } from './hooks/useHorizontalSwipe';
 import { ArrowLeft, Sparkles, Share2 } from 'lucide-react';
 
@@ -107,6 +109,17 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
+
+  const [showRatePrompt, setShowRatePrompt] = useState<boolean>(false);
+  useEffect(() => {
+    recordAppLaunch();
+    if (shouldShowRatePrompt()) {
+      // Slight delay so it doesn't compete with the app's own initial
+      // render/paint.
+      const timer = setTimeout(() => setShowRatePrompt(true), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const t = getTranslation(language);
 
@@ -348,6 +361,10 @@ export default function App() {
         }}
         language={language}
       />
+
+      {showRatePrompt && (
+        <RateAppModal language={language} onClose={() => setShowRatePrompt(false)} />
+      )}
     </div>
   );
 }
